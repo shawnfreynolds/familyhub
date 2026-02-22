@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#2D6A4F">
+<title>Family Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root{
+  --forest:#2D6A4F;--forest-l:#40916C;--forest-ll:#D8F3DC;
+  --sand:#F8F4ED;--sand-d:#EDE8DF;
+  --amber:#E9A84C;--amber-l:#FDF3E3;
+  --rose:#C75B5B;--rose-l:#FAEAEA;
+  --ink:#1C2B2B;--ink-m:#4A5E5E;--ink-l:#8FA3A3;
+  --white:#FFFFFF;
+  --r:16px;--rs:10px;--shadow:0 2px 16px rgba(28,43,43,.08);--shadow-lg:0 8px 40px rgba(28,43,43,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+h1,h2,h3,.serif{font-family:'Fraunces',serif;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;}
+.screen.on{display:flex;}
+
+/* ── LOGIN / SIGNUP ── */
+#s-login{align-items:center;justify-content:center;padding:2rem;background:var(--forest);position:relative;overflow:hidden;}
+#s-login::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 80%, rgba(64,145,108,.6) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(233,168,76,.25) 0%, transparent 50%);}
+.auth-card{background:var(--white);border-radius:24px;padding:2.5rem 2rem;max-width:400px;width:100%;position:relative;z-index:1;box-shadow:var(--shadow-lg);}
+.auth-logo{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--forest);margin-bottom:.25rem;}
+.auth-logo span{color:var(--amber);}
+.auth-sub{color:var(--ink-m);font-size:.9rem;margin-bottom:2rem;}
+.fld{margin-bottom:1rem;}
+.fld label{display:block;font-size:.78rem;font-weight:700;color:var(--ink-m);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.375rem;}
+.fld input,.fld select,.fld textarea{width:100%;padding:.75rem 1rem;border:2px solid var(--sand-d);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--ink);outline:none;transition:border-color .2s;background:var(--sand);}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--forest);background:var(--white);}
+.btn{width:100%;padding:.85rem;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-forest{background:var(--forest);color:var(--white);}
+.btn-forest:hover{background:var(--forest-l);}
+.btn-outline{background:transparent;border:2px solid var(--sand-d);color:var(--ink-m);margin-top:.75rem;}
+.btn-outline:hover{border-color:var(--forest);color:var(--forest);}
+.auth-link{text-align:center;margin-top:1.25rem;font-size:.875rem;color:var(--ink-m);}
+.auth-link a{color:var(--forest);font-weight:700;cursor:pointer;text-decoration:none;}
+.auth-err{background:var(--rose-l);color:var(--rose);border-radius:var(--rs);padding:.75rem 1rem;font-size:.875rem;font-weight:600;margin-bottom:1rem;display:none;}
+.auth-ok{background:var(--forest-ll);color:var(--forest);border-radius:var(--rs);padding:.75rem 1rem;font-size:.875rem;font-weight:600;margin-bottom:1rem;display:none;}
+
+/* ── APP SHELL ── */
+#s-app{flex-direction:column;}
+.topbar{background:var(--white);padding:.875rem 1.25rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 0 var(--sand-d);position:sticky;top:0;z-index:100;}
+.topbar-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--forest);}
+.topbar-title span{color:var(--amber);}
+.topbar-right{display:flex;align-items:center;gap:.75rem;}
+.user-pill{display:flex;align-items:center;gap:.5rem;background:var(--sand);border-radius:30px;padding:.375rem .75rem .375rem .375rem;cursor:pointer;transition:background .2s;position:relative;}
+.user-pill:hover{background:var(--sand-d);}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--forest);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;}
+.user-av img{width:30px;height:30px;border-radius:50%;object-fit:cover;}
+.user-name{font-size:.85rem;font-weight:600;color:var(--ink);}
+.dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--white);border-radius:var(--r);box-shadow:var(--shadow-lg);padding:.5rem;min-width:160px;display:none;z-index:200;}
+.dropdown.on{display:block;}
+.dd-item{padding:.625rem .875rem;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;color:var(--ink);white-space:nowrap;}
+.dd-item:hover{background:var(--sand);}
+.dd-item.danger{color:var(--rose);}
+.dd-sep{height:1px;background:var(--sand-d);margin:.375rem 0;}
+.notif-dot{width:8px;height:8px;background:var(--rose);border-radius:50%;position:absolute;top:2px;right:2px;}
+
+/* ── NAV ── */
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:var(--white);display:flex;box-shadow:0 -1px 0 var(--sand-d);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nb{flex:1;padding:.625rem .25rem .5rem;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;color:var(--ink-l);transition:color .15s;}
+.nb .ni{font-size:1.25rem;transition:transform .15s;}
+.nb.on{color:var(--forest);}
+.nb.on .ni{transform:scale(1.1);}
+.nb-badge{background:var(--rose);color:#fff;font-size:.55rem;font-weight:800;padding:1px 5px;border-radius:10px;position:absolute;top:-2px;right:-4px;}
+.nb-wrap{position:relative;}
+
+/* ── CONTENT ── */
+.content{flex:1;padding:1.25rem;padding-bottom:5.5rem;max-width:640px;margin:0 auto;width:100%;}
+.sec{display:none;}
+.sec.on{display:block;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);}
+.card-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;gap:.5rem;flex-wrap:wrap;}
+.card-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--ink);}
+.btn-sm{padding:.45rem .875rem;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .15s;}
+.btn-sm-forest{background:var(--forest);color:var(--white);}
+.btn-sm-forest:hover{background:var(--forest-l);}
+.btn-sm-amber{background:var(--amber);color:var(--white);}
+.btn-sm-ghost{background:var(--sand);color:var(--ink-m);border:2px solid var(--sand-d);}
+.btn-sm-ghost:hover{border-color:var(--forest);color:var(--forest);}
+.empty{text-align:center;padding:2rem 1rem;color:var(--ink-l);}
+.empty-ico{font-size:2rem;display:block;margin-bottom:.5rem;}
+
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.cal-m{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;}
+.cnav{background:var(--sand);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;color:var(--forest);font-size:1.1rem;font-weight:700;transition:all .15s;}
+.cnav:hover{background:var(--forest);color:var(--white);}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cdh{text-align:center;font-size:.68rem;font-weight:700;color:var(--ink-l);padding:.3rem;text-transform:uppercase;}
+.cd{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:600;cursor:pointer;position:relative;transition:all .15s;}
+.cd:hover{background:var(--forest-ll);}
+.cd.today{background:var(--forest);color:var(--white);}
+.cd.sel{background:var(--amber);color:var(--white);}
+.cd.hev::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--amber);}
+.cd.today.hev::after,.cd.sel.hev::after{background:rgba(255,255,255,.7);}
+.cd.dim{opacity:.3;}
+.ev-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:var(--sand);border-radius:var(--rs);margin-bottom:.5rem;}
+.ev-dot{width:11px;height:11px;border-radius:50%;margin-top:3px;flex-shrink:0;}
+.ev-info{flex:1;}
+.ev-name{font-weight:700;font-size:.9rem;}
+.ev-meta{font-size:.75rem;color:var(--ink-m);margin-top:2px;}
+.xbtn{background:none;border:none;cursor:pointer;opacity:.3;font-size:.95rem;padding:0 3px;transition:opacity .15s;}
+.xbtn:hover{opacity:1;}
+.dot-or{background:#E9854C;}.dot-gr{background:var(--forest-l);}.dot-bl{background:#4C89C8;}.dot-pk{background:var(--rose);}.dot-ye{background:var(--amber);}
+
+/* ── TASKS ── */
+.t-item{display:flex;align-items:center;gap:.75rem;padding:.875rem;background:var(--sand);border-radius:var(--rs);margin-bottom:.5rem;}
+.t-item.dn{opacity:.45;}
+.t-item.dn .t-lbl{text-decoration:line-through;}
+.tchk{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--sand-d);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;transition:all .2s;}
+.tchk.on{background:var(--forest);border-color:var(--forest);color:var(--white);}
+.t-lbl{flex:1;font-weight:600;font-size:.9rem;}
+.t-who{font-size:.7rem;background:var(--forest-ll);color:var(--forest);font-weight:700;padding:2px 8px;border-radius:20px;}
+.pri{font-size:.65rem;padding:2px 7px;border-radius:20px;font-weight:700;}
+.pri-h{background:var(--rose-l);color:var(--rose);}
+.pri-m{background:#FEF3C7;color:#B45309;}
+.pri-l{background:var(--forest-ll);color:var(--forest);}
+
+/* ── MEALS ── */
+.m-card{background:var(--white);border-radius:var(--r);margin-bottom:.75rem;overflow:hidden;box-shadow:var(--shadow);}
+.m-hdr{background:linear-gradient(135deg,var(--forest),var(--forest-l));padding:.75rem 1rem;}
+.m-day{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;color:var(--white);}
+.m-slot{display:flex;align-items:center;padding:.625rem 1rem;border-bottom:1px solid var(--sand);gap:.75rem;}
+.m-slot:last-child{border-bottom:none;}
+.m-slot-lbl{font-size:.72rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;width:68px;flex-shrink:0;}
+.m-slot-val{flex:1;font-size:.875rem;font-weight:600;cursor:pointer;padding:3px 8px;border-radius:8px;transition:background .15s;}
+.m-slot-val:hover{background:var(--sand);}
+.m-slot-val.emp{color:var(--ink-l);}
+
+/* ── SHOPPING ── */
+.s-cat{margin-bottom:1.25rem;}
+.s-cat-t{font-weight:700;font-size:.75rem;text-transform:uppercase;color:var(--ink-l);letter-spacing:.06em;margin-bottom:.5rem;}
+.s-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .75rem;border-radius:var(--rs);transition:background .15s;}
+.s-item:hover{background:var(--sand);}
+.schk{width:22px;height:22px;border:2.5px solid var(--sand-d);border-radius:6px;background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;transition:all .2s;}
+.schk.on{background:var(--forest);border-color:var(--forest);color:var(--white);}
+.s-lbl{flex:1;font-weight:600;font-size:.875rem;}
+.s-item.dn .s-lbl{text-decoration:line-through;opacity:.45;}
+.s-qty{font-size:.78rem;color:var(--ink-l);font-weight:600;}
+.ai-badge{font-size:.58rem;background:#EDE9FE;color:#6D28D9;font-weight:800;padding:2px 6px;border-radius:20px;margin-left:.25rem;}
+.pbar-wrap{background:var(--sand-d);border-radius:20px;height:7px;margin-bottom:.875rem;overflow:hidden;}
+.pbar-fill{background:linear-gradient(90deg,var(--forest),var(--forest-l));height:100%;border-radius:20px;transition:width .4s;}
+.pbar-lbl{font-size:.78rem;color:var(--ink-l);text-align:right;margin-bottom:.4rem;font-weight:600;}
+
+/* ── NOTES ── */
+.note-card{background:var(--white);border-radius:var(--r);padding:1.25rem;margin-bottom:.875rem;box-shadow:var(--shadow);border-left:4px solid var(--forest);}
+.note-card.pinned{border-left-color:var(--amber);background:var(--amber-l);}
+.note-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.5rem;}
+.note-title{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;}
+.note-body{font-size:.875rem;color:var(--ink-m);line-height:1.6;}
+.note-footer{display:flex;align-items:center;gap:.5rem;margin-top:.75rem;font-size:.75rem;color:var(--ink-l);}
+.note-author{font-weight:700;color:var(--forest);}
+.pin-badge{font-size:.65rem;background:var(--amber);color:var(--white);padding:2px 7px;border-radius:20px;font-weight:700;}
+
+/* ── PHOTOS ── */
+.photo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1rem;}
+@media(min-width:480px){.photo-grid{grid-template-columns:repeat(3,1fr);}}
+.photo-card{border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;position:relative;aspect-ratio:1;}
+.photo-card img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.photo-card:hover img{transform:scale(1.05);}
+.photo-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(28,43,43,.8));padding:.75rem .625rem .5rem;color:var(--white);font-size:.75rem;font-weight:600;}
+.photo-delete{position:absolute;top:.5rem;right:.5rem;background:rgba(28,43,43,.5);border:none;color:var(--white);border-radius:50%;width:26px;height:26px;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:.75rem;}
+.photo-card:hover .photo-delete{display:flex;}
+.upload-zone{border:2px dashed var(--sand-d);border-radius:var(--r);padding:2rem;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:1rem;}
+.upload-zone:hover{border-color:var(--forest);background:var(--forest-ll);}
+.upload-zone-ico{font-size:2rem;display:block;margin-bottom:.5rem;}
+.upload-zone-txt{font-size:.875rem;color:var(--ink-m);font-weight:600;}
+
+/* ── PHOTO LIGHTBOX ── */
+.lightbox{position:fixed;inset:0;background:rgba(28,43,43,.92);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;padding:1rem;}
+.lightbox.on{display:flex;}
+.lightbox img{max-width:100%;max-height:75vh;border-radius:var(--r);object-fit:contain;}
+.lightbox-caption{color:var(--white);font-size:.9rem;margin-top:.75rem;font-weight:600;}
+.lightbox-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:var(--white);border-radius:50%;width:40px;height:40px;font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ── AI CHEF ── */
+.chef-hero{background:linear-gradient(135deg,#1B4332,#2D6A4F,#52B788);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;color:var(--white);display:flex;align-items:center;gap:1rem;}
+.chef-hero-ico{font-size:2.5rem;}
+.chef-hero h2{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;}
+.chef-hero p{font-size:.82rem;opacity:.85;margin-top:2px;}
+.qchips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.qchip{background:var(--white);border:2px solid var(--sand-d);border-radius:20px;padding:.375rem .875rem;font-size:.78rem;font-weight:700;color:var(--ink-m);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.qchip:hover{border-color:var(--forest);color:var(--forest);}
+.chatbox{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);display:flex;flex-direction:column;height:380px;overflow:hidden;margin-bottom:1rem;}
+.msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;}
+.cmsg{display:flex;gap:.625rem;align-items:flex-end;animation:msgpop .25s ease;}
+@keyframes msgpop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.cmsg.u{flex-direction:row-reverse;}
+.cbubble{max-width:82%;padding:.75rem 1rem;border-radius:18px;font-size:.85rem;line-height:1.55;font-weight:500;}
+.cmsg.ai .cbubble{background:var(--forest-ll);color:var(--ink);border-bottom-left-radius:4px;}
+.cmsg.u .cbubble{background:var(--forest);color:var(--white);border-bottom-right-radius:4px;}
+.cmav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;}
+.cmsg.ai .cmav{background:linear-gradient(135deg,#1B4332,var(--forest));}
+.cmsg.u .cmav{background:var(--forest-l);}
+.typing-dots{display:flex;gap:4px;align-items:center;padding:.75rem 1rem;background:var(--forest-ll);border-radius:18px;border-bottom-left-radius:4px;width:fit-content;}
+.typing-dots span{width:7px;height:7px;background:var(--forest);border-radius:50%;animation:td 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chat-input-row{display:flex;gap:.5rem;padding:.875rem;border-top:1px solid var(--sand);}
+.cinput{flex:1;border:2px solid var(--sand-d);border-radius:24px;padding:.6rem 1rem;font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;outline:none;transition:border-color .2s;background:var(--sand);}
+.cinput:focus{border-color:var(--forest);background:var(--white);}
+.csend{background:var(--forest);color:var(--white);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.csend:hover{background:var(--forest-l);transform:scale(1.05);}
+.csend:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.ai-plan-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1rem;display:none;}
+.ai-plan-card.on{display:block;animation:msgpop .3s ease;}
+.ai-plan-hdr{background:linear-gradient(135deg,#1B4332,var(--forest));padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.ai-plan-hdr-t{color:var(--white);font-family:'Fraunces',serif;font-weight:700;font-size:1rem;}
+.apply-btn{background:var(--amber);color:var(--white);border:none;border-radius:var(--rs);padding:.45rem 1rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:opacity .15s;}
+.apply-btn:hover{opacity:.9;}
+.ai-plan-body{padding:1rem 1.25rem;}
+.ai-mr{display:flex;gap:.5rem;align-items:baseline;margin-bottom:.375rem;}
+.ai-md{font-weight:700;font-size:.72rem;color:var(--ink-l);text-transform:uppercase;width:68px;flex-shrink:0;}
+.ai-mv{font-size:.85rem;font-weight:600;}
+.ai-shop-preview{margin-top:.875rem;padding-top:.875rem;border-top:1px solid var(--sand);}
+.ai-shop-t{font-size:.72rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;margin-bottom:.5rem;}
+.ai-tags{display:flex;flex-wrap:wrap;gap:.375rem;}
+.ai-tag{background:var(--forest-ll);color:var(--forest);font-size:.73rem;font-weight:700;padding:3px 9px;border-radius:20px;}
+
+/* ── ADMIN ── */
+.admin-hero{background:linear-gradient(135deg,#1C2B2B,#2D4A4A);border-radius:var(--r);padding:1.25rem;color:var(--white);margin-bottom:1rem;display:flex;align-items:center;gap:1rem;}
+.admin-hero-ico{font-size:2.5rem;}
+.admin-hero h2{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;}
+.admin-hero p{font-size:.82rem;opacity:.75;margin-top:2px;}
+.user-row{display:flex;align-items:center;gap:.75rem;padding:.875rem;background:var(--sand);border-radius:var(--rs);margin-bottom:.5rem;}
+.user-row-av{width:36px;height:36px;border-radius:50%;background:var(--forest);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0;}
+.user-row-info{flex:1;}
+.user-row-name{font-weight:700;font-size:.9rem;}
+.user-row-meta{font-size:.75rem;color:var(--ink-l);margin-top:1px;}
+.role-badge{font-size:.65rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+.role-admin{background:#FEF3C7;color:#92400E;}
+.role-member{background:var(--forest-ll);color:var(--forest);}
+.pending-card{background:var(--amber-l);border:2px solid var(--amber);border-radius:var(--r);padding:1.25rem;margin-bottom:.875rem;}
+.pending-name{font-weight:700;font-size:1rem;margin-bottom:.25rem;}
+.pending-meta{font-size:.82rem;color:var(--ink-m);margin-bottom:.875rem;}
+.pending-actions{display:flex;gap:.5rem;}
+.btn-approve{background:var(--forest);color:var(--white);border:none;border-radius:var(--rs);padding:.5rem 1rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;}
+.btn-reject{background:var(--rose);color:var(--white);border:none;border-radius:var(--rs);padding:.5rem 1rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;}
+.admin-stat{background:var(--white);border-radius:var(--r);padding:1rem;text-align:center;box-shadow:var(--shadow);}
+.admin-stat-n{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--forest);}
+.admin-stat-l{font-size:.78rem;color:var(--ink-l);font-weight:600;text-transform:uppercase;margin-top:.25rem;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem;}
+
+/* ── MODALS ── */
+.ov{position:fixed;inset:0;background:rgba(28,43,43,.55);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.ov.on{display:flex;}
+.modal{background:var(--white);border-radius:24px 24px 0 0;padding:1.5rem 1.5rem 2.5rem;width:100%;max-width:600px;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.ov.on .modal{transform:translateY(0);}
+.mhandle{width:36px;height:4px;background:var(--sand-d);border-radius:2px;margin:0 auto 1.25rem;}
+.mtitle{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;margin-bottom:1.25rem;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.cpick{display:flex;gap:.5rem;}
+.copt{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s;}
+.copt:hover{transform:scale(1.15);}
+.copt.on{border-color:var(--ink);transform:scale(1.1);}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.375rem;}
+.chip{padding:.375rem .875rem;border-radius:20px;background:var(--sand);font-size:.82rem;font-weight:700;cursor:pointer;border:2px solid transparent;color:var(--ink-m);font-family:'DM Sans',sans-serif;transition:all .15s;}
+.chip.on{background:var(--forest-ll);border-color:var(--forest);color:var(--forest);}
+.sbtn{width:100%;padding:.85rem;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;background:var(--forest);color:var(--white);margin-top:.75rem;}
+.sbtn:hover{background:var(--forest-l);}
+
+/* ── UTILS ── */
+.section-lbl{font-size:.72rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.08em;padding:.75rem 0 .25rem;margin-top:.25rem;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div class="screen on" id="s-login">
+  <!-- LOGIN PANEL -->
+  <div class="auth-card" id="panel-login">
+    <div class="auth-logo">Family<span>Hub</span></div>
+    <div class="auth-sub">Sign in to your family account</div>
+    <div class="auth-err" id="login-err"></div>
+    <div class="fld"><label>Username</label><input id="l-user" placeholder="sreynolds" autocomplete="username"></div>
+    <div class="fld"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-forest" onclick="doLogin()">Sign In</button>
+    <div class="auth-link">New family? <a onclick="showPanel('signup')">Request an account →</a></div>
+  </div>
+
+  <!-- SIGNUP REQUEST PANEL -->
+  <div class="auth-card" id="panel-signup" style="display:none">
+    <div class="auth-logo">Family<span>Hub</span></div>
+    <div class="auth-sub">Request a new family account — the admin will approve it shortly.</div>
+    <div class="auth-err" id="signup-err"></div>
+    <div class="auth-ok" id="signup-ok"></div>
+    <div class="fld"><label>Your Full Name</label><input id="su-name" placeholder="Jane Reynolds"></div>
+    <div class="fld"><label>Desired Username</label><input id="su-user" placeholder="jreynolds" autocomplete="off"></div>
+    <div class="fld"><label>Family Name / Group</label><input id="su-family" placeholder="Reynolds Family"></div>
+    <div class="fld"><label>Why do you want access?</label><textarea id="su-reason" rows="2" placeholder="I'm part of the Reynolds family…" style="resize:none"></textarea></div>
+    <button class="btn btn-forest" onclick="doSignupRequest()">Send Request</button>
+    <button class="btn btn-outline" onclick="showPanel('login')">← Back to Sign In</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     APP SCREEN
+══════════════════════════════════════ -->
+<div class="screen" id="s-app">
+  <div class="topbar">
+    <div class="topbar-title">Family<span>Hub</span></div>
+    <div class="topbar-right">
+      <div class="user-pill" id="user-pill" onclick="toggleDrop()">
+        <div class="user-av" id="user-av">F</div>
+        <span class="user-name" id="user-display">Family</span>
+        <div class="dropdown" id="user-drop">
+          <div class="dd-item" id="drop-family" style="color:var(--ink-l);font-size:.78rem;cursor:default"></div>
+          <div class="dd-sep"></div>
+          <div class="dd-item danger" onclick="doLogout()">Sign Out</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- CALENDAR -->
+    <div class="sec on" id="sec-cal">
+      <div class="card">
+        <div class="cal-nav">
+          <button class="cnav" onclick="cm(-1)">&#8249;</button>
+          <div class="cal-m" id="cal-lbl"></div>
+          <button class="cnav" onclick="cm(1)">&#8250;</button>
+        </div>
+        <div class="cgrid" id="cal-grid"></div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title" id="ev-date-lbl">Today</div>
+          <button class="btn-sm btn-sm-forest" onclick="openModal('ev')">+ Add Event</button>
+        </div>
+        <div id="ev-list"></div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="sec" id="sec-tasks">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">📋 Family Tasks</div>
+          <button class="btn-sm btn-sm-forest" onclick="openModal('task')">+ Add</button>
+        </div>
+        <div id="task-list"></div>
+      </div>
+    </div>
+
+    <!-- MEALS -->
+    <div class="sec" id="sec-meals">
+      <div class="card-row">
+        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">🍽️ This Week</div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-sm" style="background:linear-gradient(135deg,#1B4332,var(--forest));color:var(--white)" onclick="goSec('chef',document.getElementById('nb-chef'))">🤖 AI Plan</button>
+          <button class="btn-sm btn-sm-forest" onclick="openModal('meal')">+ Add</button>
+        </div>
+      </div>
+      <div id="meal-list" style="margin-top:.75rem"></div>
+    </div>
+
+    <!-- AI CHEF -->
+    <div class="sec" id="sec-chef">
+      <div class="chef-hero">
+        <div class="chef-hero-ico">🤖</div>
+        <div><h2>Chef AI</h2><p>Tell me your family's tastes — I'll plan the week &amp; auto-fill your shopping list!</p></div>
+      </div>
+      <div class="qchips">
+        <button class="qchip" onclick="qp('Plan a healthy week of family dinners')">🥗 Healthy</button>
+        <button class="qchip" onclick="qp('Quick meals under 30 mins each night')">⚡ Quick</button>
+        <button class="qchip" onclick="qp('Kid-friendly meals everyone will love')">👶 Kid-friendly</button>
+        <button class="qchip" onclick="qp('Budget-friendly meals for the week')">💰 Budget</button>
+        <button class="qchip" onclick="qp('Different cuisine each night')">🌍 World tour</button>
+      </div>
+      <div class="chatbox">
+        <div class="msgs" id="msgs"></div>
+        <div class="chat-input-row">
+          <input class="cinput" id="cinput" placeholder="e.g. 2 kids, love Italian, no shellfish…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendMsg()}">
+          <button class="csend" id="csend" onclick="sendMsg()">&#10148;</button>
+        </div>
+      </div>
+      <div class="ai-plan-card" id="ai-plan-card">
+        <div class="ai-plan-hdr">
+          <div class="ai-plan-hdr-t">🍽️ Your AI Meal Plan</div>
+          <button class="apply-btn" onclick="applyPlan()">✅ Apply to Meals + Shopping</button>
+        </div>
+        <div class="ai-plan-body">
+          <div id="ai-meal-prev"></div>
+          <div class="ai-shop-preview">
+            <div class="ai-shop-t">🛒 Shopping list will include</div>
+            <div class="ai-tags" id="ai-shop-tags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOPPING -->
+    <div class="sec" id="sec-shop">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">🛒 Shopping List</div>
+          <button class="btn-sm btn-sm-forest" onclick="openModal('shop')">+ Add</button>
+        </div>
+        <div class="pbar-lbl" id="shop-lbl">0 of 0 items</div>
+        <div class="pbar-wrap"><div class="pbar-fill" id="shop-bar" style="width:0%"></div></div>
+        <div id="shop-list"></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="sec" id="sec-notes">
+      <div class="card-row">
+        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">📝 Family Board</div>
+        <button class="btn-sm btn-sm-forest" onclick="openModal('note')">+ Post</button>
+      </div>
+      <div id="notes-list" style="margin-top:.75rem"></div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="sec" id="sec-photos">
+      <div class="card-row">
+        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">📸 Memory Wall</div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+          <button class="btn-sm" style="background:var(--amber);color:var(--white)" onclick="startSlideshow()">▶ Slideshow</button>
+          <label class="btn-sm btn-sm-forest" style="cursor:pointer">+ Upload<input type="file" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event)"></label>
+        </div>
+      </div>
+
+      <!-- Google Drive panel -->
+      <div id="drive-panel" style="background:var(--white);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);border-left:4px solid #4285F4;">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+          <svg width="22" height="22" viewBox="0 0 87.3 78" style="flex-shrink:0"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
+          <div>
+            <div style="font-weight:700;font-size:.9rem;">Google Drive Album</div>
+            <div id="drive-status" style="font-size:.78rem;color:var(--ink-l);">Not connected — paste your folder ID below to link photos</div>
+          </div>
+          <button onclick="driveRefresh()" id="drive-refresh-btn" style="margin-left:auto;background:var(--sand);border:none;border-radius:var(--rs);padding:.4rem .75rem;font-size:.78rem;font-weight:700;cursor:pointer;display:none;">↻ Refresh</button>
+        </div>
+        <div style="display:flex;gap:.5rem;">
+          <input id="drive-folder-input" class="fi" placeholder="Paste Google Drive folder ID…" style="font-size:.85rem;padding:.6rem .875rem;">
+          <button onclick="saveDriveFolderId()" style="background:#4285F4;color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Connect</button>
+        </div>
+        <div style="margin-top:.625rem;font-size:.73rem;color:var(--ink-l);line-height:1.5;">
+          📋 <strong>Setup:</strong> In Google Drive, right-click your photo folder → Share → "Anyone with the link" → Copy link. The folder ID is the long string after <code>/folders/</code> in the URL. Also needs a <strong>Google Drive API key</strong> — set it in the Admin panel.
+        </div>
+      </div>
+
+      <div class="upload-zone" onclick="document.querySelector('#sec-photos input[type=file]').click()">
+        <span class="upload-zone-ico">🖼️</span>
+        <div class="upload-zone-txt">Or tap here to upload photos directly from your device</div>
+      </div>
+      <div id="drive-photos-section" style="display:none;">
+        <div style="font-size:.78rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.625rem;" id="drive-count-lbl"></div>
+        <div class="photo-grid" id="drive-photo-grid"></div>
+      </div>
+      <div style="font-size:.78rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.625rem;margin-top:.25rem;" id="local-photos-lbl" style="display:none"></div>
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="sec" id="sec-admin">
+      <div class="admin-hero">
+        <div class="admin-hero-ico">⚙️</div>
+        <div><h2>Admin Panel</h2><p>Manage accounts, approve requests &amp; see app stats</p></div>
+      </div>
+      <div class="stats-grid">
+        <div class="admin-stat"><div class="admin-stat-n" id="stat-users">0</div><div class="admin-stat-l">Users</div></div>
+        <div class="admin-stat"><div class="admin-stat-n" id="stat-families">0</div><div class="admin-stat-l">Families</div></div>
+        <div class="admin-stat"><div class="admin-stat-n" id="stat-pending">0</div><div class="admin-stat-l">Pending</div></div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">⏳ Pending Requests</div>
+        </div>
+        <div id="pending-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">🔑 Google Drive Settings</div>
+        </div>
+        <div class="fld">
+          <label>Drive API Key</label>
+          <div style="display:flex;gap:.5rem;">
+            <input class="fi" id="admin-drive-key" placeholder="AIzaSy…" style="font-size:.85rem;">
+            <button onclick="saveDriveApiKey()" style="background:var(--forest);color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Save</button>
+          </div>
+          <div style="font-size:.73rem;color:var(--ink-l);margin-top:.375rem;">Get a free API key at <strong>console.cloud.google.com</strong> → APIs → Drive API → Credentials → API Key. Restrict it to the Drive API only.</div>
+        </div>
+        <div class="fld">
+          <label>Current Drive Folder ID</label>
+          <div id="admin-drive-folder-display" style="font-size:.85rem;color:var(--ink-m);padding:.5rem 0;font-weight:600;">None set</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">👥 All Users</div>
+          <button class="btn-sm btn-sm-forest" onclick="openModal('newuser')">+ Create User</button>
+        </div>
+        <div id="all-users-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottomnav" id="bottomnav">
+    <button class="nb on" id="nb-cal" onclick="goSec('cal',this)"><span class="ni">📅</span>Calendar</button>
+    <button class="nb" id="nb-tasks" onclick="goSec('tasks',this)"><span class="ni">✅</span>Tasks</button>
+    <button class="nb" id="nb-meals" onclick="goSec('meals',this)"><span class="ni">🍽️</span>Meals</button>
+    <button class="nb" id="nb-chef" onclick="goSec('chef',this)"><span class="ni">🤖</span>Chef AI</button>
+    <button class="nb" id="nb-shop" onclick="goSec('shop',this)"><span class="ni">🛒</span>Shopping</button>
+    <button class="nb" id="nb-notes" onclick="goSec('notes',this)"><span class="ni">📝</span>Board</button>
+    <button class="nb" id="nb-photos" onclick="goSec('photos',this)"><span class="ni">📸</span>Photos</button>
+    <button class="nb" id="nb-admin" onclick="goSec('admin',this)" style="display:none">
+      <div class="nb-wrap"><span class="ni">⚙️</span><span class="nb-badge" id="admin-badge" style="display:none"></span></div>Admin
+    </button>
+  </nav>
+</div>
+
+<!-- SLIDESHOW OVERLAY -->
+<div id="slideshow" style="display:none;position:fixed;inset:0;background:#000;z-index:600;flex-direction:column;user-select:none;">
+
+  <!-- Top bar: clock + controls -->
+  <div id="ss-topbar" style="position:absolute;top:0;left:0;right:0;z-index:10;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent);transition:opacity .4s;">
+    <div style="display:flex;flex-direction:column;">
+      <div id="ss-clock" style="font-family:'Fraunces',serif;font-size:2.5rem;font-weight:900;color:#fff;line-height:1;"></div>
+      <div id="ss-date" style="font-size:.9rem;color:rgba(255,255,255,.7);margin-top:2px;font-weight:500;"></div>
+    </div>
+    <div style="display:flex;gap:.75rem;align-items:center;">
+      <button id="ss-playbtn" onclick="ssTogglePlay()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);">⏸</button>
+      <button onclick="stopSlideshow()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);">✕</button>
+    </div>
+  </div>
+
+  <!-- Photo display -->
+  <div style="flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;" id="ss-stage">
+    <img id="ss-img-a" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .8s ease;" src="" alt="">
+    <img id="ss-img-b" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .8s ease;opacity:0;" src="" alt="">
+
+    <!-- Prev / Next tap zones -->
+    <div onclick="ssPrev()" style="position:absolute;left:0;top:0;bottom:0;width:20%;cursor:pointer;display:flex;align-items:center;padding-left:1rem;">
+      <div style="background:rgba(255,255,255,.12);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;backdrop-filter:blur(4px);">‹</div>
+    </div>
+    <div onclick="ssNext()" style="position:absolute;right:0;top:0;bottom:0;width:20%;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;padding-right:1rem;">
+      <div style="background:rgba(255,255,255,.12);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.5rem;backdrop-filter:blur(4px);">›</div>
+    </div>
+  </div>
+
+  <!-- Bottom bar: caption + dots -->
+  <div id="ss-botbar" style="position:absolute;bottom:0;left:0;right:0;padding:1.5rem;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);transition:opacity .4s;">
+    <div id="ss-caption" style="color:#fff;font-size:1rem;font-weight:600;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.5);margin-bottom:.75rem;min-height:1.4rem;"></div>
+    <div id="ss-dots" style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;"></div>
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<!-- Event -->
+<div class="ov" id="ov-ev"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">📅 Add Event</div>
+  <div class="fld"><label>Name</label><input class="fi" id="ev-n" placeholder="Soccer practice, Doctor appt…"></div>
+  <div class="fr">
+    <div class="fld"><label>Time</label><input class="fi" id="ev-t" type="time"></div>
+    <div class="fld"><label>Who</label><input class="fi" id="ev-w" placeholder="Emma, Jack…"></div>
+  </div>
+  <div class="fld"><label>Colour</label>
+    <div class="cpick">
+      <div class="copt on" data-c="dot-or" onclick="pickCol(this)" style="background:#E9854C"></div>
+      <div class="copt" data-c="dot-gr" onclick="pickCol(this)" style="background:#40916C"></div>
+      <div class="copt" data-c="dot-bl" onclick="pickCol(this)" style="background:#4C89C8"></div>
+      <div class="copt" data-c="dot-pk" onclick="pickCol(this)" style="background:#C75B5B"></div>
+      <div class="copt" data-c="dot-ye" onclick="pickCol(this)" style="background:#E9A84C"></div>
+    </div>
+  </div>
+  <button class="sbtn" onclick="addEvent()">Add Event 🎉</button>
+</div></div>
+
+<!-- Task -->
+<div class="ov" id="ov-task"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">✅ Add Task</div>
+  <div class="fld"><label>Task</label><input class="fi" id="tk-n" placeholder="Clean room, Homework…"></div>
+  <div class="fld"><label>Assigned to</label><input class="fi" id="tk-w" placeholder="Jack, Emma, Everyone"></div>
+  <div class="fld"><label>Priority</label>
+    <div class="chips">
+      <div class="chip on" data-v="h" onclick="pickChip(this,'tk-p')">🔴 High</div>
+      <div class="chip" data-v="m" onclick="pickChip(this,'tk-p')">🟡 Medium</div>
+      <div class="chip" data-v="l" onclick="pickChip(this,'tk-p')">🟢 Low</div>
+    </div>
+    <input type="hidden" id="tk-p" value="h">
+  </div>
+  <button class="sbtn" onclick="addTask()">Add Task ✅</button>
+</div></div>
+
+<!-- Meal -->
+<div class="ov" id="ov-meal"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">🍽️ Plan a Meal</div>
+  <div class="fld"><label>Day</label>
+    <select class="fi" id="ml-d">
+      <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+      <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+    </select>
+  </div>
+  <div class="fld"><label>Meal</label>
+    <div class="chips">
+      <div class="chip on" data-v="breakfast" onclick="pickChip(this,'ml-s')">🌅 Breakfast</div>
+      <div class="chip" data-v="lunch" onclick="pickChip(this,'ml-s')">☀️ Lunch</div>
+      <div class="chip" data-v="dinner" onclick="pickChip(this,'ml-s')">🌙 Dinner</div>
+      <div class="chip" data-v="snack" onclick="pickChip(this,'ml-s')">🍎 Snack</div>
+    </div>
+    <input type="hidden" id="ml-s" value="breakfast">
+  </div>
+  <div class="fld"><label>What?</label><input class="fi" id="ml-n" placeholder="Spaghetti bolognese…"></div>
+  <button class="sbtn" onclick="addMeal()">Save Meal 🍽️</button>
+</div></div>
+
+<!-- Shop -->
+<div class="ov" id="ov-shop"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">🛒 Add Item</div>
+  <div class="fld"><label>Item</label><input class="fi" id="sh-n" placeholder="Milk, Apples, Chicken…"></div>
+  <div class="fld">
+    <label>Quantity</label>
+    <div style="display:flex;gap:.5rem;align-items:center;">
+      <input class="fi" id="sh-amt" type="number" min="0.25" step="0.25" placeholder="1" style="width:80px;flex-shrink:0;">
+      <select class="fi" id="sh-unit">
+        <option value="item">item(s)</option>
+        <option value="lb">lb(s)</option>
+        <option value="oz">oz</option>
+        <option value="gallon">gallon(s)</option>
+        <option value="quart">quart(s)</option>
+        <option value="pint">pint(s)</option>
+        <option value="cup">cup(s)</option>
+        <option value="fl oz">fl oz</option>
+        <option value="tbsp">tbsp</option>
+        <option value="tsp">tsp</option>
+        <option value="dozen">dozen</option>
+        <option value="bag">bag(s)</option>
+        <option value="box">box(es)</option>
+        <option value="can">can(s)</option>
+        <option value="bunch">bunch(es)</option>
+        <option value="loaf">loaf/loaves</option>
+        <option value="pack">pack(s)</option>
+        <option value="stick">stick(s)</option>
+        <option value="slice">slice(s)</option>
+      </select>
+    </div>
+  </div>
+  <div class="fld"><label>Category</label>
+    <select class="fi" id="sh-c">
+      <option>🥦 Produce</option><option>🥩 Meat &amp; Fish</option><option>🧀 Dairy</option>
+      <option>🥖 Bakery</option><option>🥫 Pantry</option><option>🧊 Frozen</option>
+      <option>🧴 Household</option><option>🍭 Snacks</option>
+    </select>
+  </div>
+  <button class="sbtn" onclick="addShop()">Add to List 🛒</button>
+</div></div>
+
+<!-- Meal edit -->
+<div class="ov" id="ov-medit"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle" id="medit-title">Edit Meal</div>
+  <input type="hidden" id="medit-day"><input type="hidden" id="medit-slot">
+  <div class="fld"><label>What are you having?</label><input class="fi" id="medit-val" placeholder="Enter meal name…"></div>
+  <button class="sbtn" onclick="saveMedit()">Save 🍽️</button>
+</div></div>
+
+<!-- Note -->
+<div class="ov" id="ov-note"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">📝 Post to Family Board</div>
+  <div class="fld"><label>Title</label><input class="fi" id="nt-t" placeholder="Weekend plans, Reminder…"></div>
+  <div class="fld"><label>Message</label><textarea class="fi" id="nt-b" rows="3" placeholder="Write your message…" style="resize:none"></textarea></div>
+  <div class="fld"><label>Options</label>
+    <div class="chips">
+      <div class="chip" data-v="pin" onclick="toggleChip(this)">📌 Pin to top</div>
+    </div>
+  </div>
+  <button class="sbtn" onclick="addNote()">Post to Board 📝</button>
+</div></div>
+
+<!-- Photo caption -->
+<div class="ov" id="ov-photo"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">📸 Add Caption</div>
+  <img id="photo-preview" style="width:100%;border-radius:var(--rs);margin-bottom:1rem;max-height:200px;object-fit:cover;" src="" alt="">
+  <div class="fld"><label>Caption (optional)</label><input class="fi" id="photo-cap" placeholder="Summer 2025, Emma's birthday…"></div>
+  <button class="sbtn" onclick="savePhoto()">Add to Memory Wall 📸</button>
+</div></div>
+
+<!-- Create User (admin) -->
+<div class="ov" id="ov-newuser"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">👤 Create New Account</div>
+  <div class="auth-err" id="newuser-err"></div>
+  <div class="fld"><label>Display Name</label><input class="fi" id="nu-name" placeholder="Jane Reynolds"></div>
+  <div class="fld"><label>Username</label><input class="fi" id="nu-user" placeholder="jreynolds"></div>
+  <div class="fld"><label>Password</label><input class="fi" id="nu-pass" type="password" placeholder="Choose a password"></div>
+  <div class="fld"><label>Family ID</label><input class="fi" id="nu-fam" placeholder="reynolds (lowercase, no spaces)"></div>
+  <div class="fld"><label>Role</label>
+    <div class="chips">
+      <div class="chip on" data-v="member" onclick="pickChip(this,'nu-role')">👤 Member</div>
+      <div class="chip" data-v="admin" onclick="pickChip(this,'nu-role')">⚙️ Admin</div>
+    </div>
+    <input type="hidden" id="nu-role" value="member">
+  </div>
+  <button class="sbtn" onclick="createUser()">Create Account 👤</button>
+</div></div>
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+// ══════════════════════════════════════
+// CONSTANTS & STATE
+// ══════════════════════════════════════
+var ADMIN_EMAIL = 'shawn.f.reynolds@gmail.com';
+var DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+var SLOTS = ['breakfast','lunch','dinner','snack'];
+var SICO = {breakfast:'🌅',lunch:'☀️',dinner:'🌙',snack:'🍎'};
+var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+var session = {user: null}; // current logged-in user object
+var viewY = new Date().getFullYear();
+var viewM = new Date().getMonth();
+var selDate = new Date();
+var selCol = 'dot-or';
+var chatHist = [];
+var pendingPlan = null;
+var aiTyping = false;
+var pendingPhotoData = null; // base64 data URL waiting for caption
+
+// ══════════════════════════════════════
+// CRYPTO — SHA-256 password hashing
+// ══════════════════════════════════════
+async function sha256(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+// ══════════════════════════════════════
+// STORAGE HELPERS
+// ══════════════════════════════════════
+async function stGet(key, shared) {
+  try {
+    var r = await window.storage.get(key, shared || false);
+    return r ? JSON.parse(r.value) : null;
+  } catch(e) { return null; }
+}
+async function stSet(key, val, shared) {
+  try {
+    await window.storage.set(key, JSON.stringify(val), shared || false);
+    return true;
+  } catch(e) { return false; }
+}
+async function stDel(key, shared) {
+  try { await window.storage.delete(key, shared || false); } catch(e) {}
+}
+
+// Family-scoped helpers
+async function famGet(key) { return stGet('fam:'+session.user.familyId+':'+key, true); }
+async function famSet(key, val) { return stSet('fam:'+session.user.familyId+':'+key, val, true); }
+
+// ══════════════════════════════════════
+// SEED INITIAL USERS (first run only)
+// ══════════════════════════════════════
+async function seedIfNeeded() {
+  var existing = await stGet('user:sreynolds', true);
+  if (existing) return; // already seeded
+
+  var hash1 = await sha256('password123');
+  var hash2 = await sha256('password456');
+
+  await stSet('user:sreynolds', {
+    username: 'sreynolds', passwordHash: hash1, familyId: 'reynolds',
+    role: 'admin', displayName: 'Shawn Reynolds', approved: true,
+    createdAt: Date.now()
+  }, true);
+
+  await stSet('user:jreynolds', {
+    username: 'jreynolds', passwordHash: hash2, familyId: 'reynolds',
+    role: 'member', displayName: 'J Reynolds', approved: true,
+    createdAt: Date.now()
+  }, true);
+
+  // Seed some demo family data
+  var today = new Date();
+  function ds(o){var d=new Date(today);d.setDate(d.getDate()+o);return d.toISOString().split('T')[0];}
+  var demoEvents = [
+    {id:1, date:ds(0), title:'Soccer practice', time:'4:00 PM', who:'Emma', col:'dot-gr'},
+    {id:2, date:ds(1), title:'Doctor checkup', time:'10:30 AM', who:'Jack', col:'dot-pk'},
+    {id:3, date:ds(3), title:'School play', time:'3:00 PM', who:'Emma', col:'dot-or'},
+    {id:4, date:ds(5), title:"Liam's birthday party", time:'2:00 PM', who:'Jack', col:'dot-ye'}
+  ];
+  var demoTasks = [
+    {id:1, title:'Clean bedroom', who:'Emma', pri:'h', done:false},
+    {id:2, title:'Finish math homework', who:'Jack', pri:'h', done:false},
+    {id:3, title:'Feed the dog', who:'Both', pri:'m', done:true},
+    {id:4, title:'Pack school bag', who:'Emma', pri:'l', done:false}
+  ];
+  var demoMeals = {};
+  DAYS.forEach(function(d){demoMeals[d]={breakfast:'',lunch:'',dinner:'',snack:''};});
+  demoMeals.Monday.dinner='Spaghetti Bolognese 🍝';
+  demoMeals.Tuesday.dinner='Chicken Tacos 🌮';
+  demoMeals.Wednesday.dinner='Grilled Salmon 🐟';
+  demoMeals.Thursday.dinner='Homemade Pizza 🍕';
+  demoMeals.Friday.dinner='Fish & Chips 🐠';
+  demoMeals.Saturday.breakfast='Pancakes 🥞';
+  demoMeals.Saturday.dinner='BBQ Burgers 🍔';
+  demoMeals.Sunday.dinner='Roast Chicken 🍗';
+  var demoShop = [
+    {id:1,name:'Milk',qty:'1 gallon',cat:'🧀 Dairy',done:false,ai:false},
+    {id:2,name:'Chicken breast',qty:'2 lbs',cat:'🥩 Meat & Fish',done:false,ai:false},
+    {id:3,name:'Broccoli',qty:'1 head',cat:'🥦 Produce',done:true,ai:false},
+    {id:4,name:'Pasta',qty:'1 lb box',cat:'🥫 Pantry',done:false,ai:false}
+  ];
+  var demoNotes = [
+    {id:1, title:"Welcome to FamilyHub! 🏠", body:"This is your family's private space. Add events, plan meals, share photos, and keep everyone in sync.", author:'sreynolds', pinned:true, createdAt:Date.now()},
+    {id:2, title:"Grocery reminder", body:"We're out of milk and bread. Can someone pick these up this week?", author:'sreynolds', pinned:false, createdAt:Date.now()-3600000}
+  ];
+  await stSet('fam:reynolds:events', demoEvents, true);
+  await stSet('fam:reynolds:tasks', demoTasks, true);
+  await stSet('fam:reynolds:meals', demoMeals, true);
+  await stSet('fam:reynolds:shopping', demoShop, true);
+  await stSet('fam:reynolds:notes', demoNotes, true);
+  await stSet('fam:reynolds:photos', [], true);
+  await stSet('pending:signups', [], true);
+}
+
+// ══════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════
+function showPanel(p) {
+  document.getElementById('panel-login').style.display = p==='login'?'':'none';
+  document.getElementById('panel-signup').style.display = p==='signup'?'':'none';
+  clearAuthMsgs();
+}
+function clearAuthMsgs() {
+  ['login-err','signup-err','signup-ok','newuser-err'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){el.style.display='none';el.textContent='';}
+  });
+}
+function showErr(id, msg) {
+  var el = document.getElementById(id);
+  if(el){el.textContent=msg;el.style.display='block';}
+}
+function showOk(id, msg) {
+  var el = document.getElementById(id);
+  if(el){el.textContent=msg;el.style.display='block';}
+}
+
+async function doLogin() {
+  clearAuthMsgs();
+  var username = document.getElementById('l-user').value.trim().toLowerCase();
+  var password = document.getElementById('l-pass').value;
+  if(!username||!password){showErr('login-err','Please enter username and password.');return;}
+  var user = await stGet('user:'+username, true);
+  if(!user){showErr('login-err','Account not found. Check your username.');return;}
+  if(!user.approved){showErr('login-err','Your account is pending approval. The admin will activate it shortly.');return;}
+  var hash = await sha256(password);
+  if(hash !== user.passwordHash){showErr('login-err','Incorrect password. Please try again.');return;}
+  session.user = user;
+  launchApp();
+}
+
+async function doSignupRequest() {
+  clearAuthMsgs();
+  var name = document.getElementById('su-name').value.trim();
+  var username = document.getElementById('su-user').value.trim().toLowerCase();
+  var family = document.getElementById('su-family').value.trim();
+  var reason = document.getElementById('su-reason').value.trim();
+  if(!name||!username||!family){showErr('signup-err','Please fill in all required fields.');return;}
+  if(!/^[a-z0-9_]{3,20}$/.test(username)){showErr('signup-err','Username must be 3-20 chars, letters/numbers/underscores only.');return;}
+  var existing = await stGet('user:'+username, true);
+  if(existing){showErr('signup-err','That username is already taken. Please choose another.');return;}
+  var pending = await stGet('pending:signups', true) || [];
+  if(pending.find(function(p){return p.username===username;})){showErr('signup-err','A request for that username is already pending.');return;}
+  pending.push({username:username, displayName:name, familyName:family, reason:reason||'', requestedAt:Date.now()});
+  await stSet('pending:signups', pending, true);
+  showOk('signup-ok', '✅ Request sent! The admin will review it and create your account. You\'ll be notified when it\'s ready.');
+  // In a real app we'd send an email — here we just log it
+  console.log('New signup request for admin '+ADMIN_EMAIL+':', {username, name, family});
+}
+
+async function doLogout() {
+  session.user = null;
+  document.getElementById('s-app').classList.remove('on');
+  document.getElementById('s-app').style.display = 'none';
+  document.getElementById('s-login').classList.add('on');
+  document.getElementById('s-login').style.display = '';
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('user-drop').classList.remove('on');
+}
+
+// ══════════════════════════════════════
+// LAUNCH APP
+// ══════════════════════════════════════
+async function launchApp() {
+  var u = session.user;
+  document.getElementById('s-login').classList.remove('on');
+  document.getElementById('s-login').style.display = 'none';
+  var app = document.getElementById('s-app');
+  app.style.display = 'flex';
+  app.classList.add('on');
+
+  document.getElementById('user-av').textContent = u.displayName[0].toUpperCase();
+  document.getElementById('user-display').textContent = u.displayName.split(' ')[0];
+  document.getElementById('drop-family').textContent = u.familyId.charAt(0).toUpperCase()+u.familyId.slice(1)+' Family';
+
+  // Admin tab
+  if(u.role === 'admin') {
+    document.getElementById('nb-admin').style.display = '';
+    checkPendingBadge();
+  }
+
+  selDate = new Date();
+  viewY = selDate.getFullYear();
+  viewM = selDate.getMonth();
+
+  renderCal();
+  await renderEvents();
+  await renderTasks();
+  await renderMeals();
+  await renderShop();
+  await migrateShoppingToImperial();
+  await renderShop(); // re-render after migration
+  await renderNotes();
+  await renderPhotos();
+  initChat();
+}
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+function goSec(name, btn) {
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('sec-'+name).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(name==='admin') renderAdmin();
+}
+function toggleDrop(){document.getElementById('user-drop').classList.toggle('on');}
+document.addEventListener('click',function(e){
+  var pill=document.getElementById('user-pill');
+  if(pill&&!pill.contains(e.target))document.getElementById('user-drop').classList.remove('on');
+});
+
+// ══════════════════════════════════════
+// CALENDAR
+// ══════════════════════════════════════
+function renderCal() {
+  document.getElementById('cal-lbl').textContent = MONTHS[viewM]+' '+viewY;
+  var g = document.getElementById('cal-grid');
+  g.innerHTML = '';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(function(d){g.innerHTML+='<div class="cdh">'+d+'</div>';});
+  var fd=new Date(viewY,viewM,1).getDay(), dim=new Date(viewY,viewM+1,0).getDate(), pd=new Date(viewY,viewM,0).getDate();
+  var today=new Date();
+  for(var i=fd-1;i>=0;i--) g.innerHTML+='<div class="cd dim">'+(pd-i)+'</div>';
+  for(var d=1;d<=dim;d++) {
+    var ds=viewY+'-'+pad(viewM+1)+'-'+pad(d);
+    var isT=today.getDate()===d&&today.getMonth()===viewM&&today.getFullYear()===viewY;
+    var isS=selDate&&selDate.getDate()===d&&selDate.getMonth()===viewM&&selDate.getFullYear()===viewY;
+    var cls='cd';
+    if(isT)cls+=' today'; else if(isS)cls+=' sel';
+    // event dots checked async — use data attribute
+    g.innerHTML+='<div class="'+cls+'" data-ds="'+ds+'" onclick="pickDay('+d+')">'+d+'</div>';
+  }
+  var rem=(fd+dim)%7===0?0:7-((fd+dim)%7);
+  for(var d=1;d<=rem;d++) g.innerHTML+='<div class="cd dim">'+d+'</div>';
+  // Load events to mark dots
+  famGet('events').then(function(evs){
+    if(!evs) return;
+    evs.forEach(function(ev){
+      var el = g.querySelector('[data-ds="'+ev.date+'"]');
+      if(el) el.classList.add('hev');
+    });
+  });
+}
+function pad(n){return String(n).padStart(2,'0');}
+function cm(dir){
+  viewM+=dir;
+  if(viewM>11){viewM=0;viewY++;}else if(viewM<0){viewM=11;viewY--;}
+  renderCal();
+}
+function pickDay(d){
+  selDate=new Date(viewY,viewM,d);
+  renderCal();
+  renderEvents();
+}
+
+async function renderEvents() {
+  var evs = await famGet('events') || [];
+  var list = document.getElementById('ev-list');
+  var ds = selDate.toISOString().split('T')[0];
+  var dayEvs = evs.filter(function(e){return e.date===ds;});
+  var DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var isT=selDate.toDateString()===new Date().toDateString();
+  document.getElementById('ev-date-lbl').textContent = isT?'Today':DN[selDate.getDay()]+', '+MN[selDate.getMonth()]+' '+selDate.getDate();
+  if(!dayEvs.length){list.innerHTML='<div class="empty"><span class="empty-ico">📭</span>Nothing scheduled — enjoy the day!</div>';return;}
+  list.innerHTML=dayEvs.map(function(e){
+    return '<div class="ev-item"><div class="ev-dot '+e.col+'"></div><div class="ev-info"><div class="ev-name">'+e.title+'</div><div class="ev-meta">'+(e.time?'⏰ '+e.time+' &nbsp;':'')+(e.who?'👤 '+e.who:'')+'</div></div><button class="xbtn" onclick="delEvent('+e.id+')">✕</button></div>';
+  }).join('');
+}
+
+async function addEvent() {
+  var name=document.getElementById('ev-n').value.trim();
+  if(!name){alert('Please enter an event name');return;}
+  var evs=await famGet('events')||[];
+  evs.push({id:Date.now(), date:(selDate||new Date()).toISOString().split('T')[0], title:name, time:document.getElementById('ev-t').value, who:document.getElementById('ev-w').value.trim(), col:selCol, addedBy:session.user.username});
+  await famSet('events',evs);
+  closeModals(); renderCal(); renderEvents();
+}
+async function delEvent(id) {
+  var evs=await famGet('events')||[];
+  await famSet('events',evs.filter(function(e){return e.id!==id;}));
+  renderCal(); renderEvents();
+}
+
+// ══════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════
+async function renderTasks() {
+  var tasks=await famGet('tasks')||[];
+  var list=document.getElementById('task-list');
+  if(!tasks.length){list.innerHTML='<div class="empty"><span class="empty-ico">🎉</span>No tasks — all clear!</div>';return;}
+  function rt(t){
+    var pc=t.pri==='h'?'pri-h':t.pri==='m'?'pri-m':'pri-l';
+    var pi=t.pri==='h'?'🔴':t.pri==='m'?'🟡':'🟢';
+    return '<div class="t-item'+(t.done?' dn':'')+'"><div class="tchk'+(t.done?' on':'')+'" onclick="togTask('+t.id+')">'+(t.done?'✓':'')+'</div><div class="t-lbl">'+t.title+'</div>'+(t.who?'<div class="t-who">'+t.who+'</div>':'')+'<div class="pri '+pc+'">'+pi+'</div><button class="xbtn" onclick="delTask('+t.id+')">✕</button></div>';
+  }
+  var a=tasks.filter(function(t){return!t.done;}), d=tasks.filter(function(t){return t.done;});
+  list.innerHTML=a.map(rt).join('')+(d.length?'<div class="section-lbl">Completed</div>'+d.map(rt).join(''):'');
+}
+async function togTask(id){var t=await famGet('tasks')||[];var i=t.find(function(x){return x.id===id;});if(i){i.done=!i.done;await famSet('tasks',t);renderTasks();}}
+async function delTask(id){var t=await famGet('tasks')||[];await famSet('tasks',t.filter(function(x){return x.id!==id;}));renderTasks();}
+async function addTask(){
+  var name=document.getElementById('tk-n').value.trim();
+  if(!name){alert('Enter a task');return;}
+  var tasks=await famGet('tasks')||[];
+  tasks.unshift({id:Date.now(),title:name,who:document.getElementById('tk-w').value.trim(),pri:document.getElementById('tk-p').value,done:false,addedBy:session.user.username});
+  await famSet('tasks',tasks);
+  closeModals(); renderTasks();
+}
+
+// ══════════════════════════════════════
+// MEALS
+// ══════════════════════════════════════
+async function ensureMeals(){
+  var m=await famGet('meals')||{};
+  var changed=false;
+  DAYS.forEach(function(d){if(!m[d]){m[d]={breakfast:'',lunch:'',dinner:'',snack:''};changed=true;}});
+  if(changed) await famSet('meals',m);
+  return m;
+}
+async function renderMeals(){
+  var meals=await ensureMeals();
+  document.getElementById('meal-list').innerHTML=DAYS.map(function(day){
+    return '<div class="m-card"><div class="m-hdr"><div class="m-day">'+day+'</div></div>'+
+      SLOTS.map(function(s){
+        var v=meals[day][s];
+        return '<div class="m-slot"><div class="m-slot-lbl">'+SICO[s]+' '+s.charAt(0).toUpperCase()+s.slice(1)+'</div><div class="m-slot-val'+(v?'':' emp')+'" onclick="openMedit(\''+day+'\',\''+s+'\')">'+(v||'+ Add')+'</div></div>';
+      }).join('')+'</div>';
+  }).join('');
+}
+function openMedit(day,slot){
+  document.getElementById('medit-day').value=day;
+  document.getElementById('medit-slot').value=slot;
+  document.getElementById('medit-title').textContent=SICO[slot]+' '+slot.charAt(0).toUpperCase()+slot.slice(1)+' — '+day;
+  famGet('meals').then(function(m){document.getElementById('medit-val').value=(m&&m[day]&&m[day][slot])||'';});
+  openModal('medit');
+}
+async function saveMedit(){
+  var m=await ensureMeals();
+  m[document.getElementById('medit-day').value][document.getElementById('medit-slot').value]=document.getElementById('medit-val').value.trim();
+  await famSet('meals',m);
+  closeModals(); renderMeals();
+}
+async function addMeal(){
+  var name=document.getElementById('ml-n').value.trim();
+  if(!name){alert('Enter a meal name');return;}
+  var m=await ensureMeals();
+  m[document.getElementById('ml-d').value][document.getElementById('ml-s').value]=name;
+  await famSet('meals',m);
+  closeModals(); renderMeals();
+}
+
+// ══════════════════════════════════════
+// SHOPPING
+// ══════════════════════════════════════
+async function renderShop(){
+  var items=await famGet('shopping')||[];
+  var total=items.length, done=items.filter(function(i){return i.done;}).length;
+  document.getElementById('shop-lbl').textContent=done+' of '+total+' items checked';
+  document.getElementById('shop-bar').style.width=total?(done/total*100)+'%':'0%';
+  var list=document.getElementById('shop-list');
+  if(!total){list.innerHTML='<div class="empty"><span class="empty-ico">🛒</span>All clear! Add items or use 🤖 Chef AI.</div>';return;}
+  var cats={};
+  items.forEach(function(i){if(!cats[i.cat])cats[i.cat]=[];cats[i.cat].push(i);});
+  list.innerHTML=Object.keys(cats).map(function(cat){
+    return '<div class="s-cat"><div class="s-cat-t">'+cat+'</div>'+
+      cats[cat].map(function(it){
+        return '<div class="s-item'+(it.done?' dn':'')+'"><div class="schk'+(it.done?' on':'')+'" onclick="togShop('+it.id+')">'+(it.done?'✓':'')+'</div><div class="s-lbl">'+it.name+(it.ai?'<span class="ai-badge">🤖 AI</span>':'')+'</div><div class="s-qty">'+it.qty+'</div><button class="xbtn" onclick="delShop('+it.id+')">✕</button></div>';
+      }).join('')+'</div>';
+  }).join('');
+}
+async function togShop(id){var i=await famGet('shopping')||[];var x=i.find(function(x){return x.id===id;});if(x){x.done=!x.done;await famSet('shopping',i);renderShop();}}
+async function delShop(id){var i=await famGet('shopping')||[];await famSet('shopping',i.filter(function(x){return x.id!==id;}));renderShop();}
+async function addShop(){
+  var name=document.getElementById('sh-n').value.trim();
+  if(!name){alert('Enter an item');return;}
+  var amt=document.getElementById('sh-amt').value.trim()||'1';
+  var unit=document.getElementById('sh-unit').value;
+  var qty=amt+' '+(unit==='item'?'':unit);
+  qty=qty.trim();
+  var items=await famGet('shopping')||[];
+  items.push({id:Date.now(),name:name,qty:qty,cat:document.getElementById('sh-c').value,done:false,ai:false,addedBy:session.user.username});
+  await famSet('shopping',items);
+  closeModals(); renderShop();
+}
+
+// Convert any old metric quantities in storage to imperial
+async function migrateShoppingToImperial(){
+  var items=await famGet('shopping')||[];
+  var changed=false;
+  var metricMap=[
+    {re:/^(\d+\.?\d*)\s*kg$/i, fn:function(m){return (parseFloat(m[1])*2.205).toFixed(1)+' lbs';}},
+    {re:/^(\d+\.?\d*)\s*g$/i,  fn:function(m){var oz=(parseFloat(m[1])/28.35).toFixed(1);return oz+' oz';}},
+    {re:/^(\d+\.?\d*)\s*ml$/i, fn:function(m){var floz=(parseFloat(m[1])/29.57).toFixed(1);return floz+' fl oz';}},
+    {re:/^(\d+\.?\d*)\s*l(?:iter)?s?$/i, fn:function(m){var qt=(parseFloat(m[1])*1.057).toFixed(2);return qt+' qt';}},
+    {re:/^(\d+)\s*liters?$/i,  fn:function(m){return (parseInt(m[1])===1?'1 quart':parseFloat(m[1]).toFixed(1)+' qt');}},
+  ];
+  items.forEach(function(it){
+    for(var i=0;i<metricMap.length;i++){
+      var mm=it.qty&&it.qty.match(metricMap[i].re);
+      if(mm){it.qty=metricMap[i].fn(mm);changed=true;break;}
+    }
+  });
+  if(changed) await famSet('shopping',items);
+}
+
+// ══════════════════════════════════════
+// NOTES / FAMILY BOARD
+// ══════════════════════════════════════
+async function renderNotes(){
+  var notes=await famGet('notes')||[];
+  var list=document.getElementById('notes-list');
+  if(!notes.length){list.innerHTML='<div class="empty"><span class="empty-ico">📝</span>Nothing posted yet — share something with the family!</div>';return;}
+  var sorted=notes.slice().sort(function(a,b){return (b.pinned?1:0)-(a.pinned?1:0)||(b.createdAt-a.createdAt);});
+  list.innerHTML=sorted.map(function(n){
+    var d=new Date(n.createdAt);
+    var ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return '<div class="note-card'+(n.pinned?' pinned':'')+'"><div class="note-header"><div class="note-title">'+n.title+(n.pinned?' <span class="pin-badge">📌 Pinned</span>':'')+'</div>'+(n.addedBy===session.user.username||session.user.role==='admin'?'<button class="xbtn" onclick="delNote('+n.id+')">✕</button>':'')+'</div><div class="note-body">'+n.body+'</div><div class="note-footer"><span class="note-author">'+n.addedBy+'</span><span>·</span><span>'+ds+'</span></div></div>';
+  }).join('');
+}
+async function addNote(){
+  var title=document.getElementById('nt-t').value.trim();
+  var body=document.getElementById('nt-b').value.trim();
+  if(!title||!body){alert('Please add a title and message');return;}
+  var pinChip=document.querySelector('#ov-note .chip[data-v="pin"]');
+  var pinned=pinChip&&pinChip.classList.contains('on');
+  var notes=await famGet('notes')||[];
+  notes.push({id:Date.now(),title:title,body:body,pinned:pinned,author:session.user.displayName,addedBy:session.user.username,createdAt:Date.now()});
+  await famSet('notes',notes);
+  closeModals(); renderNotes();
+}
+async function delNote(id){
+  var notes=await famGet('notes')||[];
+  await famSet('notes',notes.filter(function(n){return n.id!==id;}));
+  renderNotes();
+}
+
+// ══════════════════════════════════════
+// PHOTOS / MEMORY WALL
+// ══════════════════════════════════════
+// ══════════════════════════════════════
+// GOOGLE DRIVE INTEGRATION
+// ══════════════════════════════════════
+// Drive config stored globally (shared across all families, admin sets it)
+async function getDriveConfig(){
+  var cfg = await stGet('drive:config', true) || {};
+  return cfg; // {apiKey, folderId}
+}
+async function saveDriveApiKey(){
+  var key = document.getElementById('admin-drive-key').value.trim();
+  if(!key){alert('Enter an API key');return;}
+  var cfg = await getDriveConfig();
+  cfg.apiKey = key;
+  await stSet('drive:config', cfg, true);
+  alert('✅ API key saved!');
+  renderAdmin();
+}
+async function saveDriveFolderId(){
+  var raw = document.getElementById('drive-folder-input').value.trim();
+  if(!raw){alert('Paste a folder ID or Drive URL');return;}
+  // Extract ID from URL if user pasted full URL
+  var match = raw.match(/folders\/([a-zA-Z0-9_-]+)/);
+  var folderId = match ? match[1] : raw;
+  var cfg = await getDriveConfig();
+  cfg.folderId = folderId;
+  await stSet('drive:config', cfg, true);
+  document.getElementById('drive-folder-input').value = '';
+  await loadDrivePhotos();
+}
+
+var drivePhotoCache = []; // [{id, name, caption, src}]
+
+async function loadDrivePhotos(){
+  var cfg = await getDriveConfig();
+  var statusEl = document.getElementById('drive-status');
+  var refreshBtn = document.getElementById('drive-refresh-btn');
+  var driveSection = document.getElementById('drive-photos-section');
+  var driveGrid = document.getElementById('drive-photo-grid');
+  var localLbl = document.getElementById('local-photos-lbl');
+
+  if(!cfg.apiKey || !cfg.folderId){
+    statusEl.textContent = 'Not connected — paste your folder ID below to link photos';
+    driveSection.style.display = 'none';
+    localLbl.style.display = 'none';
+    drivePhotoCache = [];
+    return;
+  }
+
+  statusEl.textContent = 'Loading from Google Drive…';
+  document.getElementById('drive-folder-input').value = cfg.folderId;
+
+  var url = 'https://www.googleapis.com/drive/v3/files'
+    + '?q=%27'+cfg.folderId+'%27+in+parents+and+trashed%3Dfalse+and+mimeType+contains+%27image%2F%27'
+    + '&fields=files(id%2Cname%2CcreatedTime)'
+    + '&orderBy=createdTime+desc'
+    + '&pageSize=100'
+    + '&key='+cfg.apiKey;
+
+  try {
+    var resp = await fetch(url);
+    if(!resp.ok){
+      var err = await resp.json().catch(function(){return {};});
+      var msg = (err.error && err.error.message) || ('HTTP '+resp.status);
+      statusEl.textContent = '⚠️ Drive error: '+msg;
+      driveSection.style.display = 'none';
+      drivePhotoCache = [];
+      return;
+    }
+    var data = await resp.json();
+    var files = data.files || [];
+    drivePhotoCache = files.map(function(f){
+      return {
+        id: 'drive-'+f.id,
+        driveId: f.id,
+        name: f.name,
+        caption: f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' '),
+        // Use Google's thumbnail endpoint — works for public files with just an API key
+        src: 'https://lh3.googleusercontent.com/d/'+f.id+'=w1600'
+      };
+    });
+
+    if(!drivePhotoCache.length){
+      statusEl.textContent = 'Connected ✅ — folder is empty. Add photos to your Drive folder!';
+      driveSection.style.display = 'none';
+    } else {
+      statusEl.textContent = 'Connected ✅ — '+drivePhotoCache.length+' photo'+(drivePhotoCache.length===1?'':'s')+' from Google Drive';
+      driveSection.style.display = 'block';
+      refreshBtn.style.display = '';
+      document.getElementById('drive-count-lbl').textContent = '📁 From Google Drive ('+drivePhotoCache.length+' photos)';
+      driveGrid.innerHTML = drivePhotoCache.map(function(p){
+        return '<div class="photo-card" onclick="openLightbox(\''+p.id+'\')"><img src="'+p.src+'" alt="'+p.caption+'" loading="lazy"><div class="photo-caption">'+p.caption+'</div></div>';
+      }).join('');
+    }
+  } catch(e) {
+    statusEl.textContent = '⚠️ Could not reach Google Drive — check your API key and folder sharing.';
+    driveSection.style.display = 'none';
+    drivePhotoCache = [];
+    console.error('Drive fetch error:', e);
+  }
+
+  // Label local photos section if there are any
+  var localPhotos = await famGet('photos') || [];
+  if(localPhotos.length){
+    localLbl.textContent = '📲 Uploaded to FamilyHub ('+localPhotos.length+' photos)';
+    localLbl.style.display = 'block';
+  } else {
+    localLbl.style.display = 'none';
+  }
+}
+
+async function driveRefresh(){
+  var btn = document.getElementById('drive-refresh-btn');
+  btn.textContent = '…';
+  await loadDrivePhotos();
+  btn.textContent = '↻ Refresh';
+}
+
+// ══════════════════════════════════════
+// PHOTOS
+// ══════════════════════════════════════
+async function renderPhotos(){
+  var photos=await famGet('photos')||[];
+  var grid=document.getElementById('photo-grid');
+  var localLbl=document.getElementById('local-photos-lbl');
+  if(!photos.length){
+    grid.innerHTML='';
+    // Drive load will set localLbl visibility
+  } else {
+    grid.innerHTML=photos.map(function(p){
+      return '<div class="photo-card" onclick="openLightbox(\''+p.id+'\')"><img src="'+p.data+'" alt="'+(p.caption||'')+'" loading="lazy"><div class="photo-caption">'+(p.caption||'')+'</div><button class="photo-delete" onclick="event.stopPropagation();delPhoto('+p.id+')">✕</button></div>';
+    }).join('');
+  }
+  // Load/refresh Drive photos too
+  await loadDrivePhotos();
+}
+
+function handlePhotoUpload(e) {
+  var files = Array.from(e.target.files);
+  if(!files.length) return;
+  processPhotoFile(files[0], function(dataUrl){
+    pendingPhotoData = {data: dataUrl, remaining: files.slice(1)};
+    document.getElementById('photo-preview').src = dataUrl;
+    document.getElementById('photo-cap').value = '';
+    openModal('photo');
+  });
+  e.target.value = '';
+}
+
+function processPhotoFile(file, cb) {
+  var reader = new FileReader();
+  reader.onload = function(ev){ cb(ev.target.result); };
+  reader.readAsDataURL(file);
+}
+
+async function savePhoto() {
+  if(!pendingPhotoData) return;
+  var caption = document.getElementById('photo-cap').value.trim();
+  var photos = await famGet('photos') || [];
+  photos.unshift({id:Date.now(), data:pendingPhotoData.data, caption:caption, addedBy:session.user.username, createdAt:Date.now()});
+  await famSet('photos', photos);
+  var remaining = pendingPhotoData.remaining || [];
+  pendingPhotoData = null;
+  closeModals();
+  await renderPhotos();
+  if(remaining.length) {
+    processPhotoFile(remaining[0], function(dataUrl){
+      pendingPhotoData = {data:dataUrl, remaining:remaining.slice(1)};
+      document.getElementById('photo-preview').src = dataUrl;
+      document.getElementById('photo-cap').value = '';
+      openModal('photo');
+    });
+  }
+}
+
+async function delPhoto(id) {
+  var photos = await famGet('photos') || [];
+  await famSet('photos', photos.filter(function(p){return p.id!==id;}));
+  renderPhotos();
+}
+
+// Unified photo lookup for lightbox/slideshow (local + Drive)
+async function getAllPhotos(){
+  var local = await famGet('photos') || [];
+  // local photos have .data (base64), Drive photos have .src (URL)
+  var localMapped = local.map(function(p){ return {id:p.id, src:p.data, caption:p.caption||'', isLocal:true}; });
+  var driveMapped = drivePhotoCache.map(function(p){ return {id:p.id, src:p.src, caption:p.caption, isDrive:true}; });
+  return driveMapped.concat(localMapped);
+}
+
+// Single-photo lightbox (tap from grid)
+async function openLightbox(id) {
+  var all = await getAllPhotos();
+  var idx = all.findIndex(function(x){return String(x.id)===String(id);});
+  if(idx<0) return;
+  ssPhotos = all;
+  ssIdx = idx;
+  ssIsPlaying = false;
+  ssShowSlideshow(false);
+}
+
+// ══════════════════════════════════════
+// SLIDESHOW ENGINE
+// ══════════════════════════════════════
+var ssPhotos = [];
+var ssIdx = 0;
+var ssIsPlaying = false;
+var ssTimer = null;
+var ssClockTimer = null;
+var ssHideTimer = null;
+var ssActiveSlot = 'a'; // which img tag is visible
+var SS_INTERVAL = 6000; // ms between slides
+
+async function startSlideshow() {
+  var all = await getAllPhotos();
+  if(!all.length){ alert('Add some photos first — upload them or connect a Google Drive folder!'); return; }
+  ssPhotos = all;
+  ssIdx = 0;
+  ssIsPlaying = true;
+  ssShowSlideshow(true);
+}
+
+function ssShowSlideshow(autoPlay) {
+  var ss = document.getElementById('slideshow');
+  ss.style.display = 'flex';
+  ss.style.flexDirection = 'column';
+
+  // Prevent screen sleep on supported browsers
+  if(navigator.wakeLock) {
+    navigator.wakeLock.request('screen').catch(function(){});
+  }
+
+  ssIsPlaying = autoPlay;
+  ssRenderDots();
+  ssLoadPhoto(ssIdx, true);
+  ssTick();
+  ssStartClock();
+  ssScheduleHideBars();
+
+  // Keyboard nav
+  document.addEventListener('keydown', ssKeyHandler);
+}
+
+function stopSlideshow() {
+  document.getElementById('slideshow').style.display = 'none';
+  clearTimeout(ssTimer);
+  clearInterval(ssClockTimer);
+  clearTimeout(ssHideTimer);
+  document.removeEventListener('keydown', ssKeyHandler);
+  ssIsPlaying = false;
+}
+
+function ssKeyHandler(e) {
+  if(e.key==='ArrowRight'||e.key===' ') ssNext();
+  else if(e.key==='ArrowLeft') ssPrev();
+  else if(e.key==='Escape') stopSlideshow();
+  else if(e.key==='p'||e.key==='P') ssTogglePlay();
+}
+
+function ssTogglePlay() {
+  ssIsPlaying = !ssIsPlaying;
+  document.getElementById('ss-playbtn').textContent = ssIsPlaying ? '⏸' : '▶';
+  if(ssIsPlaying) ssTick();
+  else clearTimeout(ssTimer);
+}
+
+function ssTick() {
+  clearTimeout(ssTimer);
+  if(!ssIsPlaying) return;
+  ssTimer = setTimeout(function(){
+    ssIdx = (ssIdx + 1) % ssPhotos.length;
+    ssLoadPhoto(ssIdx, false);
+    ssUpdateDots();
+    ssTick();
+  }, SS_INTERVAL);
+}
+
+function ssNext() {
+  clearTimeout(ssTimer);
+  ssIdx = (ssIdx + 1) % ssPhotos.length;
+  ssLoadPhoto(ssIdx, false);
+  ssUpdateDots();
+  ssRevealBars();
+  if(ssIsPlaying) ssTick();
+}
+
+function ssPrev() {
+  clearTimeout(ssTimer);
+  ssIdx = (ssIdx - 1 + ssPhotos.length) % ssPhotos.length;
+  ssLoadPhoto(ssIdx, false);
+  ssUpdateDots();
+  ssRevealBars();
+  if(ssIsPlaying) ssTick();
+}
+
+function ssLoadPhoto(idx, instant) {
+  var p = ssPhotos[idx];
+  if(!p) return;
+  var imgA = document.getElementById('ss-img-a');
+  var imgB = document.getElementById('ss-img-b');
+
+  // Cross-fade: load into hidden slot, then swap
+  var current = ssActiveSlot === 'a' ? imgA : imgB;
+  var next    = ssActiveSlot === 'a' ? imgB : imgA;
+
+  if(instant) {
+    current.src = p.src;
+    current.style.opacity = '1';
+    next.style.opacity = '0';
+  } else {
+    next.src = p.src;
+    next.style.opacity = '0';
+    // Force reflow then fade in
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        next.style.opacity = '1';
+        current.style.opacity = '0';
+        ssActiveSlot = ssActiveSlot === 'a' ? 'b' : 'a';
+      });
+    });
+  }
+  document.getElementById('ss-caption').textContent = p.caption || '';
+}
+
+function ssRenderDots() {
+  var max = Math.min(ssPhotos.length, 30); // don't overflow on large collections
+  var dots = '';
+  for(var i=0; i<max; i++) {
+    dots += '<div id="ss-dot-'+i+'" style="width:'+(i===ssIdx?'20px':'8px')+';height:8px;border-radius:4px;background:'+(i===ssIdx?'#fff':'rgba(255,255,255,.35)')+';transition:all .3s;"></div>';
+  }
+  if(ssPhotos.length > 30) dots += '<div style="color:rgba(255,255,255,.5);font-size:.7rem;align-self:center">+'+( ssPhotos.length-30)+' more</div>';
+  document.getElementById('ss-dots').innerHTML = dots;
+}
+
+function ssUpdateDots() {
+  var max = Math.min(ssPhotos.length, 30);
+  for(var i=0; i<max; i++){
+    var d = document.getElementById('ss-dot-'+i);
+    if(!d) continue;
+    d.style.width = i===ssIdx ? '20px' : '8px';
+    d.style.background = i===ssIdx ? '#fff' : 'rgba(255,255,255,.35)';
+  }
+}
+
+function ssStartClock() {
+  function tick(){
+    var now = new Date();
+    var h = now.getHours(), m = now.getMinutes();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    document.getElementById('ss-clock').textContent = h + ':' + (m<10?'0':'')+m + ' ' + ampm;
+    var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('ss-date').textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+  }
+  tick();
+  ssClockTimer = setInterval(tick, 15000);
+}
+
+function ssRevealBars() {
+  var top = document.getElementById('ss-topbar');
+  var bot = document.getElementById('ss-botbar');
+  top.style.opacity = '1';
+  bot.style.opacity = '1';
+  ssScheduleHideBars();
+}
+
+function ssScheduleHideBars() {
+  clearTimeout(ssHideTimer);
+  ssHideTimer = setTimeout(function(){
+    document.getElementById('ss-topbar').style.opacity = '0';
+    document.getElementById('ss-botbar').style.opacity = '0';
+  }, 4000);
+}
+
+// Tap anywhere on stage reveals bars
+document.getElementById && document.addEventListener('DOMContentLoaded', function(){
+  var stage = document.getElementById('ss-stage');
+  if(stage) stage.addEventListener('click', function(){ ssRevealBars(); });
+});
+
+// ══════════════════════════════════════
+// ADMIN PANEL
+// ══════════════════════════════════════
+async function checkPendingBadge(){
+  var pending = await stGet('pending:signups', true) || [];
+  var badge = document.getElementById('admin-badge');
+  if(pending.length){badge.textContent=pending.length;badge.style.display='inline-block';}
+  else badge.style.display='none';
+}
+
+async function renderAdmin(){
+  var pending = await stGet('pending:signups', true) || [];
+  var cfg = await getDriveConfig();
+  // Populate Drive settings
+  if(document.getElementById('admin-drive-key')){
+    document.getElementById('admin-drive-key').value = cfg.apiKey||'';
+    document.getElementById('admin-drive-folder-display').textContent = cfg.folderId||'None set';
+  }
+  // Count all users & families
+  var users=[], families=new Set();
+  // We'll scan known user keys — in a real app you'd have an index
+  // Here we store a user index
+  var userIndex = await stGet('user-index', true) || ['sreynolds','jreynolds'];
+  for(var i=0;i<userIndex.length;i++){
+    var u=await stGet('user:'+userIndex[i],true);
+    if(u){users.push(u);families.add(u.familyId);}
+  }
+  document.getElementById('stat-users').textContent=users.length;
+  document.getElementById('stat-families').textContent=families.size;
+  document.getElementById('stat-pending').textContent=pending.length;
+
+  // Pending requests
+  var plist=document.getElementById('pending-list');
+  if(!pending.length){plist.innerHTML='<div class="empty"><span class="empty-ico">✅</span>No pending requests</div>';}
+  else{
+    plist.innerHTML=pending.map(function(p){
+      var d=new Date(p.requestedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      return '<div class="pending-card"><div class="pending-name">'+p.displayName+' <span style="color:var(--ink-l);font-size:.82rem">@'+p.username+'</span></div><div class="pending-meta">Family: '+p.familyName+' &nbsp;·&nbsp; Requested: '+d+(p.reason?'<br>Reason: '+p.reason:'')+'</div><div class="pending-actions"><button class="btn-approve" onclick="approvePending(\''+p.username+'\')">✅ Approve</button><button class="btn-reject" onclick="rejectPending(\''+p.username+'\')">✕ Reject</button></div></div>';
+    }).join('');
+  }
+
+  // All users
+  var ulist=document.getElementById('all-users-list');
+  ulist.innerHTML=users.map(function(u){
+    var d=new Date(u.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return '<div class="user-row"><div class="user-row-av">'+u.displayName[0]+'</div><div class="user-row-info"><div class="user-row-name">'+u.displayName+' <span style="color:var(--ink-l)">@'+u.username+'</span></div><div class="user-row-meta">Family: '+u.familyId+' &nbsp;·&nbsp; Joined: '+d+'</div></div><span class="role-badge '+(u.role==='admin'?'role-admin':'role-member')+'">'+u.role+'</span>'+(u.username!==session.user.username?'<button class="xbtn" onclick="deleteUser(\''+u.username+'\')">✕</button>':'')+'</div>';
+  }).join('');
+}
+
+async function approvePending(username) {
+  var pending = await stGet('pending:signups', true) || [];
+  var req = pending.find(function(p){return p.username===username;});
+  if(!req) return;
+  // Show create user modal pre-filled
+  document.getElementById('nu-name').value = req.displayName;
+  document.getElementById('nu-user').value = req.username;
+  document.getElementById('nu-fam').value = req.familyName.toLowerCase().replace(/\s+/g,'');
+  document.getElementById('nu-pass').value = '';
+  openModal('newuser');
+  // Mark which pending we're approving
+  document.getElementById('ov-newuser').dataset.approvingUsername = username;
+}
+
+async function rejectPending(username) {
+  if(!confirm('Reject request from @'+username+'? This cannot be undone.')) return;
+  var pending = await stGet('pending:signups', true) || [];
+  await stSet('pending:signups', pending.filter(function(p){return p.username!==username;}), true);
+  checkPendingBadge();
+  renderAdmin();
+}
+
+async function createUser() {
+  clearAuthMsgs();
+  var name=document.getElementById('nu-name').value.trim();
+  var username=document.getElementById('nu-user').value.trim().toLowerCase();
+  var pass=document.getElementById('nu-pass').value;
+  var fam=document.getElementById('nu-fam').value.trim().toLowerCase().replace(/\s+/g,'');
+  var role=document.getElementById('nu-role').value;
+  if(!name||!username||!pass||!fam){showErr('newuser-err','All fields are required.');return;}
+  if(!/^[a-z0-9_]{3,20}$/.test(username)){showErr('newuser-err','Invalid username format.');return;}
+  var existing=await stGet('user:'+username,true);
+  if(existing){showErr('newuser-err','Username already exists.');return;}
+  var hash=await sha256(pass);
+  var newUser={username:username,passwordHash:hash,familyId:fam,role:role,displayName:name,approved:true,createdAt:Date.now()};
+  await stSet('user:'+username,newUser,true);
+  // Update user index
+  var idx=await stGet('user-index',true)||['sreynolds','jreynolds'];
+  if(!idx.includes(username)) idx.push(username);
+  await stSet('user-index',idx,true);
+  // Remove from pending if this was an approval
+  var approvingUsername = document.getElementById('ov-newuser').dataset.approvingUsername;
+  if(approvingUsername){
+    var pending=await stGet('pending:signups',true)||[];
+    await stSet('pending:signups',pending.filter(function(p){return p.username!==approvingUsername;}),true);
+    delete document.getElementById('ov-newuser').dataset.approvingUsername;
+  }
+  // Ensure family data structure exists
+  var famEvents=await stGet('fam:'+fam+':events',true);
+  if(!famEvents) await stSet('fam:'+fam+':events',[],true);
+  var famTasks=await stGet('fam:'+fam+':tasks',true);
+  if(!famTasks) await stSet('fam:'+fam+':tasks',[],true);
+  var famMeals=await stGet('fam:'+fam+':meals',true);
+  if(!famMeals) await stSet('fam:'+fam+':meals',{},true);
+  var famShop=await stGet('fam:'+fam+':shopping',true);
+  if(!famShop) await stSet('fam:'+fam+':shopping',[],true);
+  var famNotes=await stGet('fam:'+fam+':notes',true);
+  if(!famNotes) await stSet('fam:'+fam+':notes',[],true);
+  var famPhotos=await stGet('fam:'+fam+':photos',true);
+  if(!famPhotos) await stSet('fam:'+fam+':photos',[],true);
+  closeModals();
+  checkPendingBadge();
+  renderAdmin();
+}
+
+async function deleteUser(username) {
+  if(!confirm('Delete account @'+username+'? This cannot be undone.')) return;
+  await stDel('user:'+username,true);
+  var idx=await stGet('user-index',true)||[];
+  await stSet('user-index',idx.filter(function(u){return u!==username;}),true);
+  renderAdmin();
+}
+
+// ══════════════════════════════════════
+// AI CHEF
+// ══════════════════════════════════════
+function initChat(){
+  chatHist=[];
+  document.getElementById('msgs').innerHTML='';
+  aiMsg("👋 Hi! I'm Chef AI — your family meal planner!\n\nTell me about your family:\n• How many people and kids' ages?\n• Favourite foods or things to avoid?\n• Any dietary needs?\n• How much time to cook on weeknights?\n\nOr tap a quick prompt — I'll plan the full week and auto-fill your shopping list! 🛒");
+}
+function aiMsg(text){
+  var msgs=document.getElementById('msgs');
+  var d=document.createElement('div');
+  d.className='cmsg ai';
+  d.innerHTML='<div class="cmav">🤖</div><div class="cbubble">'+text.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')+'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+function userMsg(text){
+  var msgs=document.getElementById('msgs');
+  var d=document.createElement('div');
+  d.className='cmsg u';
+  d.innerHTML='<div class="cbubble">'+text+'</div><div class="cmav" style="background:var(--forest-l)">👤</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+function showTyping(){
+  var msgs=document.getElementById('msgs');
+  var d=document.createElement('div');
+  d.className='cmsg ai';d.id='typing';
+  d.innerHTML='<div class="cmav">🤖</div><div class="typing-dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+function hideTyping(){var t=document.getElementById('typing');if(t)t.remove();}
+function qp(text){document.getElementById('cinput').value=text;sendMsg();}
+
+async function sendMsg(){
+  if(aiTyping)return;
+  var input=document.getElementById('cinput');
+  var text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  userMsg(text);
+  chatHist.push({role:'user',content:text});
+  aiTyping=true;document.getElementById('csend').disabled=true;showTyping();
+  var meals=await famGet('meals')||{};
+  var existingMeals=DAYS.map(function(d){
+    var m=meals[d]||{};
+    var e=SLOTS.filter(function(s){return m[s];}).map(function(s){return s+': '+m[s];});
+    return e.length?d+': '+e.join(', '):null;
+  }).filter(Boolean).join('\n');
+  var sys='You are Chef AI, a friendly family meal planner. Help busy parents plan meals and build shopping lists. IMPORTANT: Always use US imperial measurements (lbs, oz, cups, gallons, quarts, pints, fl oz, tablespoons, teaspoons) — never metric.\n\nWhen you have enough info or are asked for a plan, generate one and include it at the END of your message in this EXACT format:\n\n<MEAL_PLAN>\n{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},"Wednesday":{"breakfast":"","lunch":"Tomato soup","dinner":"Grilled Salmon","snack":""},"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},"Sunday":{"breakfast":"Eggs on toast","lunch":"","dinner":"Roast Chicken","snack":""}},"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Salmon fillets","qty":"4 pieces","cat":"🥩 Meat & Fish"},{"name":"Ground beef","qty":"1 lb","cat":"🥩 Meat & Fish"},{"name":"Spaghetti","qty":"1 lb box","cat":"🥫 Pantry"},{"name":"Tomatoes","qty":"6","cat":"🥦 Produce"},{"name":"Eggs","qty":"1 dozen","cat":"🧀 Dairy"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n</MEAL_PLAN>\n\nCategories: 🥦 Produce, 🥩 Meat & Fish, 🧀 Dairy, 🥖 Bakery, 🥫 Pantry, 🧊 Frozen, 🧴 Household, 🍭 Snacks\nLeave slots as "" if not needed. Only include main ingredients for a family of 4, skip staples like salt/oil/pepper.\n\n'+(existingMeals?'Current meal plan:\n'+existingMeals:'No meals planned yet.');
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:sys,messages:chatHist})
+  }).then(function(r){return r.json();}).then(function(d){
+    hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
+    var full=(d.content||[]).map(function(b){return b.text||'';}).join('')||"Sorry, couldn't connect. Try again!";
+    chatHist.push({role:'assistant',content:full});
+    var pm=full.match(/<MEAL_PLAN>([\s\S]*?)<\/MEAL_PLAN>/);
+    var display=full.replace(/<MEAL_PLAN>[\s\S]*?<\/MEAL_PLAN>/,'').trim();
+    if(pm){
+      try{
+        var plan=JSON.parse(pm[1].trim());
+        pendingPlan=plan;showAIPlanCard(plan);
+        if(!display)display='Your meal plan is ready! 🎉 Review it below and tap **Apply** to save it all.';
+      }catch(e){console.error('plan parse',e);}
+    }
+    if(display)aiMsg(display);
+  }).catch(function(err){
+    hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
+    aiMsg("😔 Couldn't connect right now. Check your internet and try again.");
+  });
+}
+function showAIPlanCard(plan){
+  document.getElementById('ai-plan-card').classList.add('on');
+  var prev=document.getElementById('ai-meal-prev');
+  prev.innerHTML=DAYS.map(function(day){
+    var s=plan.meals[day]||{};
+    var meals=SLOTS.filter(function(sl){return s[sl];}).map(function(sl){return '<span style="color:var(--ink-l);font-size:.7rem">'+SICO[sl]+'</span> '+s[sl];}).join(' · ');
+    return meals?'<div class="ai-mr"><div class="ai-md">'+day.slice(0,3)+'</div><div class="ai-mv">'+meals+'</div></div>':'';
+  }).filter(Boolean).join('');
+  var items=(plan.shopping||[]).slice(0,14);
+  document.getElementById('ai-shop-tags').innerHTML=items.map(function(i){return '<div class="ai-tag">'+i.name+'</div>';}).join('')+((plan.shopping||[]).length>14?'<div class="ai-tag">+'+(plan.shopping.length-14)+' more</div>':'');
+}
+async function applyPlan(){
+  if(!pendingPlan)return;
+  var meals=await ensureMeals();
+  DAYS.forEach(function(day){
+    var dp=pendingPlan.meals[day];
+    if(dp)SLOTS.forEach(function(s){if(dp[s])meals[day][s]=dp[s];});
+  });
+  await famSet('meals',meals);
+  var items=await famGet('shopping')||[];
+  var existing=new Set(items.map(function(i){return i.name.toLowerCase();}));
+  (pendingPlan.shopping||[]).forEach(function(item){
+    if(!existing.has(item.name.toLowerCase())){
+      items.push({id:Date.now()+Math.random(),name:item.name,qty:item.qty,cat:item.cat,done:false,ai:true,addedBy:'Chef AI'});
+      existing.add(item.name.toLowerCase());
+    }
+  });
+  await famSet('shopping',items);
+  renderMeals();renderShop();
+  document.getElementById('ai-plan-card').classList.remove('on');
+  pendingPlan=null;
+  aiMsg("✅ Done! Meal plan saved and ingredients added to your **Shopping List** (marked 🤖).\n\nTaking you to your shopping list…");
+  setTimeout(function(){goSec('shop',document.getElementById('nb-shop'));},2000);
+}
+
+// ══════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════
+function openModal(id){document.getElementById('ov-'+id).classList.add('on');}
+function closeModals(){document.querySelectorAll('.ov').forEach(function(o){o.classList.remove('on');});}
+document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)closeModals();});});
+
+function pickCol(el){document.querySelectorAll('.copt').forEach(function(o){o.classList.remove('on');});el.classList.add('on');selCol=el.getAttribute('data-c');}
+function pickChip(el,hid){el.closest('.chips').querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');document.getElementById(hid).value=el.getAttribute('data-v');}
+function toggleChip(el){el.classList.toggle('on');}
+
+// ══════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════
+window.addEventListener('load', function(){
+  seedIfNeeded().catch(function(e){console.error('seed error',e);});
+});
+</script>
+</body>
+</html>
