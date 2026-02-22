@@ -509,15 +509,12 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
         <div class="card-row">
           <div class="card-title">🤖 Chef AI Settings</div>
         </div>
-        <div class="fld">
-          <label>Anthropic API Key</label>
-          <div style="display:flex;gap:.5rem;">
-            <input class="fi" id="admin-anthropic-key" type="password" placeholder="sk-ant-…" style="font-size:.85rem;">
-            <button onclick="saveAnthropicKey()" style="background:var(--forest);color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Save</button>
-          </div>
-          <div style="font-size:.73rem;color:var(--ink-l);margin-top:.375rem;">Get a free key at <strong>console.anthropic.com</strong> → API Keys. Saved securely in your database.</div>
+        <div style="font-size:.85rem;color:var(--ink-m);line-height:1.6;margin-bottom:.875rem;">
+          The API key is stored securely as a <strong>Vercel Environment Variable</strong> — never in your code or database.<br>
+          <span style="font-size:.78rem;color:var(--ink-l);">Vercel Dashboard → Your Project → Settings → Environment Variables → add <code>ANTHROPIC_API_KEY</code></span>
         </div>
         <div id="admin-anthropic-status" style="font-size:.78rem;font-weight:600;padding:.25rem 0;"></div>
+        <button onclick="testAnthropicKey()" style="margin-top:.5rem;background:var(--sand);border:2px solid var(--sand-d);border-radius:var(--rs);padding:.45rem .875rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--ink-m);">🔌 Test Connection</button>
       </div>
         <div class="fld">
           <label>Drive API Key</label>
@@ -784,12 +781,6 @@ var FIREBASE_CONFIG = {
   appId:             "1:98166405229:web:ac0c88543999b6520f2764",
   measurementId:     "G-QVQDEB59G1"
 };
-
-// ══════════════════════════════════════
-// ANTHROPIC API KEY — for Chef AI
-// Get yours at: console.anthropic.com → API Keys
-// ══════════════════════════════════════
-var ANTHROPIC_API_KEY = "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";
 
 // ── Firebase SDK (loaded via CDN in <head>, see top of file) ──
 var _db = null;
@@ -1248,12 +1239,26 @@ async function getDriveConfig(){
   var cfg = await stGet('drive:config') || {};
   return cfg; // {apiKey, folderId}
 }
-async function saveAnthropicKey(){
-  var key = document.getElementById('admin-anthropic-key').value.trim();
-  if(!key){alert('Enter an API key');return;}
-  await stSet('anthropic:apikey', key);
-  document.getElementById('admin-anthropic-key').value = '';
-  document.getElementById('admin-anthropic-status').innerHTML = '✅ <span style="color:var(--forest)">API key saved! Chef AI is ready.</span>';
+async function testAnthropicKey(){
+  var statusEl = document.getElementById('admin-anthropic-status');
+  statusEl.innerHTML = '⏳ Testing…';
+  try {
+    var resp = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001', max_tokens:10, messages:[{role:'user',content:'hi'}]})
+    });
+    var data = await resp.json();
+    if(data.error){
+      statusEl.innerHTML = '❌ <span style="color:var(--rose)">Error: ' + (data.error.message||JSON.stringify(data.error)) + '</span>';
+    } else if(data.content && data.content.length){
+      statusEl.innerHTML = '✅ <span style="color:var(--forest)">Connected! Chef AI is working.</span>';
+    } else {
+      statusEl.innerHTML = '⚠️ <span style="color:#B45309">Unexpected: ' + JSON.stringify(data).substring(0,120) + '</span>';
+    }
+  } catch(err) {
+    statusEl.innerHTML = '❌ <span style="color:var(--rose)">Network error: ' + err.message + '</span>';
+  }
 }
 
 async function saveDriveApiKey(){
@@ -1641,18 +1646,7 @@ async function checkPendingBadge(){
 async function renderAdmin(){
   var pending = await stGet('pending:signups') || [];
   var cfg = await getDriveConfig();
-  // Chef AI key status
-  var savedAiKey = await stGet('anthropic:apikey');
-  var aiStatusEl = document.getElementById('admin-anthropic-status');
-  if(aiStatusEl){
-    if(savedAiKey && savedAiKey.length > 10){
-      aiStatusEl.innerHTML = '✅ <span style="color:var(--forest)">API key is set — Chef AI is active.</span>';
-    } else if(ANTHROPIC_API_KEY.indexOf('PASTE') === -1){
-      aiStatusEl.innerHTML = '✅ <span style="color:var(--forest)">API key loaded from config.</span>';
-    } else {
-      aiStatusEl.innerHTML = '⚠️ <span style="color:var(--rose)">No API key set — Chef AI won\'t work.</span>';
-    }
-  }
+  // Chef AI — status shown via Test button, nothing to load here
   // Populate Drive settings
   if(document.getElementById('admin-drive-key')){
     document.getElementById('admin-drive-key').value = cfg.apiKey||'';
@@ -1810,29 +1804,25 @@ async function sendMsg(){
     return e.length?d+': '+e.join(', '):null;
   }).filter(Boolean).join('\n');
   var sys='You are Chef AI, a friendly family meal planner. Help busy parents plan meals and build shopping lists. IMPORTANT: Always use US imperial measurements (lbs, oz, cups, gallons, quarts, pints, fl oz, tablespoons, teaspoons) — never metric.\n\nWhen you have enough info or are asked for a plan, generate one and include it at the END of your message in this EXACT format:\n\n<MEAL_PLAN>\n{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},"Wednesday":{"breakfast":"","lunch":"Tomato soup","dinner":"Grilled Salmon","snack":""},"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},"Sunday":{"breakfast":"Eggs on toast","lunch":"","dinner":"Roast Chicken","snack":""}},"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Salmon fillets","qty":"4 pieces","cat":"🥩 Meat & Fish"},{"name":"Ground beef","qty":"1 lb","cat":"🥩 Meat & Fish"},{"name":"Spaghetti","qty":"1 lb box","cat":"🥫 Pantry"},{"name":"Tomatoes","qty":"6","cat":"🥦 Produce"},{"name":"Eggs","qty":"1 dozen","cat":"🧀 Dairy"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n</MEAL_PLAN>\n\nCategories: 🥦 Produce, 🥩 Meat & Fish, 🧀 Dairy, 🥖 Bakery, 🥫 Pantry, 🧊 Frozen, 🧴 Household, 🍭 Snacks\nLeave slots as "" if not needed. Only include main ingredients for a family of 4, skip staples like salt/oil/pepper.\n\n'+(existingMeals?'Current meal plan:\n'+existingMeals:'No meals planned yet.');
-  // Get API key — prefer one saved in DB by admin, fall back to hardcoded config
-  var apiKey = ANTHROPIC_API_KEY;
-  try {
-    var savedKey = await stGet('anthropic:apikey');
-    if(savedKey && savedKey.length > 10) apiKey = savedKey;
-  } catch(e){}
-  if(!apiKey || apiKey.indexOf('PASTE') !== -1){
-    hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
-    aiMsg("⚠️ No Anthropic API key set. Add it in the **Admin panel → Chef AI Settings**, or paste it into ANTHROPIC_API_KEY in the HTML file.\n\nGet a free key at **console.anthropic.com**");
-    return;
-  }
-  fetch('https://api.anthropic.com/v1/messages',{
+  // Call our server-side proxy (api/chat.js) — key never touches the browser
+  fetch('/api/chat',{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:sys,messages:chatHist})
   }).then(function(r){return r.json();}).then(function(d){
     hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
-    var full=(d.content||[]).map(function(b){return b.text||'';}).join('')||"Sorry, couldn't connect. Try again!";
+    // Check for API-level error in response body
+    if(d.error){
+      var errMsg = d.error.message || JSON.stringify(d.error);
+      aiMsg("⚠️ API error: " + errMsg);
+      console.error('Anthropic API error:', d);
+      return;
+    }
+    var full=(d.content||[]).map(function(b){return b.text||'';}).join('');
+    if(!full){
+      aiMsg("⚠️ Empty response from API. Raw response: " + JSON.stringify(d).substring(0,200));
+      return;
+    }
     chatHist.push({role:'assistant',content:full});
     var pm=full.match(/<MEAL_PLAN>([\s\S]*?)<\/MEAL_PLAN>/);
     var display=full.replace(/<MEAL_PLAN>[\s\S]*?<\/MEAL_PLAN>/,'').trim();
@@ -1846,7 +1836,8 @@ async function sendMsg(){
     if(display)aiMsg(display);
   }).catch(function(err){
     hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
-    aiMsg("😔 Couldn't connect right now. Check your internet and try again.");
+    aiMsg("😔 Network error: " + err.message + "\n\nCheck browser console (F12) for details.");
+    console.error('Chef AI fetch error:', err);
   });
 }
 function showAIPlanCard(plan){
