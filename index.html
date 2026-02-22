@@ -507,8 +507,18 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
       </div>
       <div class="card">
         <div class="card-row">
-          <div class="card-title">🔑 Google Drive Settings</div>
+          <div class="card-title">🤖 Chef AI Settings</div>
         </div>
+        <div class="fld">
+          <label>Anthropic API Key</label>
+          <div style="display:flex;gap:.5rem;">
+            <input class="fi" id="admin-anthropic-key" type="password" placeholder="sk-ant-…" style="font-size:.85rem;">
+            <button onclick="saveAnthropicKey()" style="background:var(--forest);color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Save</button>
+          </div>
+          <div style="font-size:.73rem;color:var(--ink-l);margin-top:.375rem;">Get a free key at <strong>console.anthropic.com</strong> → API Keys. Saved securely in your database.</div>
+        </div>
+        <div id="admin-anthropic-status" style="font-size:.78rem;font-weight:600;padding:.25rem 0;"></div>
+      </div>
         <div class="fld">
           <label>Drive API Key</label>
           <div style="display:flex;gap:.5rem;">
@@ -766,14 +776,20 @@ async function sha256(str) {
 // → Your project → Project Settings → Your apps → Web app → SDK snippet
 // ══════════════════════════════════════
 var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAL06ZiKLTqTnA1X8azeiX16mBrwkMah-M",
-    authDomain: "myfamilyhub-b424b.firebaseapp.com",
-    projectId: "myfamilyhub-b424b",
-    storageBucket: "myfamilyhub-b424b.firebasestorage.app",
-    messagingSenderId: "98166405229",
-    appId: "1:98166405229:web:ac0c88543999b6520f2764",
-    measurementId: "G-QVQDEB59G1"
+  apiKey:            "AIzaSyAL06ZiKLTqTnA1X8azeiX16mBrwkMah-M",
+  authDomain:        "myfamilyhub-b424b.firebaseapp.com",
+  projectId:         "myfamilyhub-b424b",
+  storageBucket:     "myfamilyhub-b424b.firebasestorage.app",
+  messagingSenderId: "98166405229",
+  appId:             "1:98166405229:web:ac0c88543999b6520f2764",
+  measurementId:     "G-QVQDEB59G1"
 };
+
+// ══════════════════════════════════════
+// ANTHROPIC API KEY — for Chef AI
+// Get yours at: console.anthropic.com → API Keys
+// ══════════════════════════════════════
+var ANTHROPIC_API_KEY = "PASTE_YOUR_ANTHROPIC_KEY_HERE";
 
 // ── Firebase SDK (loaded via CDN in <head>, see top of file) ──
 var _db = null;
@@ -1232,6 +1248,14 @@ async function getDriveConfig(){
   var cfg = await stGet('drive:config') || {};
   return cfg; // {apiKey, folderId}
 }
+async function saveAnthropicKey(){
+  var key = document.getElementById('admin-anthropic-key').value.trim();
+  if(!key){alert('Enter an API key');return;}
+  await stSet('anthropic:apikey', key);
+  document.getElementById('admin-anthropic-key').value = '';
+  document.getElementById('admin-anthropic-status').innerHTML = '✅ <span style="color:var(--forest)">API key saved! Chef AI is ready.</span>';
+}
+
 async function saveDriveApiKey(){
   var key = document.getElementById('admin-drive-key').value.trim();
   if(!key){alert('Enter an API key');return;}
@@ -1617,6 +1641,18 @@ async function checkPendingBadge(){
 async function renderAdmin(){
   var pending = await stGet('pending:signups') || [];
   var cfg = await getDriveConfig();
+  // Chef AI key status
+  var savedAiKey = await stGet('anthropic:apikey');
+  var aiStatusEl = document.getElementById('admin-anthropic-status');
+  if(aiStatusEl){
+    if(savedAiKey && savedAiKey.length > 10){
+      aiStatusEl.innerHTML = '✅ <span style="color:var(--forest)">API key is set — Chef AI is active.</span>';
+    } else if(ANTHROPIC_API_KEY.indexOf('PASTE') === -1){
+      aiStatusEl.innerHTML = '✅ <span style="color:var(--forest)">API key loaded from config.</span>';
+    } else {
+      aiStatusEl.innerHTML = '⚠️ <span style="color:var(--rose)">No API key set — Chef AI won\'t work.</span>';
+    }
+  }
   // Populate Drive settings
   if(document.getElementById('admin-drive-key')){
     document.getElementById('admin-drive-key').value = cfg.apiKey||'';
@@ -1697,7 +1733,7 @@ async function createUser() {
   var approvingUsername = document.getElementById('ov-newuser').dataset.approvingUsername;
   if(approvingUsername){
     var pending=await stGet('pending:signups')||[];
-    await stSet('pending:signups',pending.filter(function(p){return p.username!==approvingUsername;}),true);
+    await stSet('pending:signups',pending.filter(function(p){return p.username!==approvingUsername;}));
     delete document.getElementById('ov-newuser').dataset.approvingUsername;
   }
   // Ensure family data structure exists
@@ -1722,7 +1758,7 @@ async function deleteUser(username) {
   if(!confirm('Delete account @'+username+'? This cannot be undone.')) return;
   await stDel('user:'+username);
   var idx=await stGet('user-index')||[];
-  await stSet('user-index',idx.filter(function(u){return u!==username;}),true);
+  await stSet('user-index',idx.filter(function(u){return u!==username;}));
   renderAdmin();
 }
 
@@ -1774,8 +1810,25 @@ async function sendMsg(){
     return e.length?d+': '+e.join(', '):null;
   }).filter(Boolean).join('\n');
   var sys='You are Chef AI, a friendly family meal planner. Help busy parents plan meals and build shopping lists. IMPORTANT: Always use US imperial measurements (lbs, oz, cups, gallons, quarts, pints, fl oz, tablespoons, teaspoons) — never metric.\n\nWhen you have enough info or are asked for a plan, generate one and include it at the END of your message in this EXACT format:\n\n<MEAL_PLAN>\n{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},"Wednesday":{"breakfast":"","lunch":"Tomato soup","dinner":"Grilled Salmon","snack":""},"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},"Sunday":{"breakfast":"Eggs on toast","lunch":"","dinner":"Roast Chicken","snack":""}},"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Salmon fillets","qty":"4 pieces","cat":"🥩 Meat & Fish"},{"name":"Ground beef","qty":"1 lb","cat":"🥩 Meat & Fish"},{"name":"Spaghetti","qty":"1 lb box","cat":"🥫 Pantry"},{"name":"Tomatoes","qty":"6","cat":"🥦 Produce"},{"name":"Eggs","qty":"1 dozen","cat":"🧀 Dairy"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n</MEAL_PLAN>\n\nCategories: 🥦 Produce, 🥩 Meat & Fish, 🧀 Dairy, 🥖 Bakery, 🥫 Pantry, 🧊 Frozen, 🧴 Household, 🍭 Snacks\nLeave slots as "" if not needed. Only include main ingredients for a family of 4, skip staples like salt/oil/pepper.\n\n'+(existingMeals?'Current meal plan:\n'+existingMeals:'No meals planned yet.');
+  // Get API key — prefer one saved in DB by admin, fall back to hardcoded config
+  var apiKey = ANTHROPIC_API_KEY;
+  try {
+    var savedKey = await stGet('anthropic:apikey');
+    if(savedKey && savedKey.length > 10) apiKey = savedKey;
+  } catch(e){}
+  if(!apiKey || apiKey.indexOf('PASTE') !== -1){
+    hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
+    aiMsg("⚠️ No Anthropic API key set. Add it in the **Admin panel → Chef AI Settings**, or paste it into ANTHROPIC_API_KEY in the HTML file.\n\nGet a free key at **console.anthropic.com**");
+    return;
+  }
   fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',headers:{'Content-Type':'application/json'},
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:sys,messages:chatHist})
   }).then(function(r){return r.json();}).then(function(d){
     hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
