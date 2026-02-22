@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#2D6A4F">
 <title>Family Hub</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -284,6 +287,9 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 <div class="screen on" id="s-login">
   <!-- LOGIN PANEL -->
   <div class="auth-card" id="panel-login">
+    <div id="firebase-warn" style="display:none;background:#FEF3C7;border:2px solid #F59E0B;border-radius:var(--rs);padding:.875rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#92400E;font-weight:600;line-height:1.5;">
+      ⚠️ <strong>Firebase not configured.</strong> Open the HTML file and paste your Firebase project credentials into the <code>FIREBASE_CONFIG</code> object near the top of the &lt;script&gt; tag. See the README below the login for setup steps.
+    </div>
     <div class="auth-logo">Family<span>Hub</span></div>
     <div class="auth-sub">Sign in to your family account</div>
     <div class="auth-err" id="login-err"></div>
@@ -294,8 +300,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
   </div>
 
   <!-- SIGNUP REQUEST PANEL -->
-  <div class="auth-card" id="panel-signup" style="display:none">
-    <div class="auth-logo">Family<span>Hub</span></div>
+  <div class="auth-card" id="panel-signup" style="display:none">    <div class="auth-logo">Family<span>Hub</span></div>
     <div class="auth-sub">Request a new family account — the admin will approve it shortly.</div>
     <div class="auth-err" id="signup-err"></div>
     <div class="auth-ok" id="signup-ok"></div>
@@ -305,6 +310,21 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
     <div class="fld"><label>Why do you want access?</label><textarea id="su-reason" rows="2" placeholder="I'm part of the Reynolds family…" style="resize:none"></textarea></div>
     <button class="btn btn-forest" onclick="doSignupRequest()">Send Request</button>
     <button class="btn btn-outline" onclick="showPanel('login')">← Back to Sign In</button>
+  </div>
+
+  <!-- FIREBASE SETUP GUIDE (shown below auth card) -->
+  <div id="setup-guide" style="max-width:400px;width:100%;position:relative;z-index:1;margin-top:1.25rem;display:none;">
+    <div style="background:rgba(255,255,255,.12);border-radius:var(--r);padding:1.25rem;color:#fff;font-size:.82rem;line-height:1.7;backdrop-filter:blur(4px);">
+      <div style="font-family:'Fraunces',serif;font-size:1rem;font-weight:700;margin-bottom:.75rem;">🔧 Firebase Setup (one-time)</div>
+      <ol style="padding-left:1.25rem;display:flex;flex-direction:column;gap:.4rem;">
+        <li>Go to <strong>console.firebase.google.com</strong> and create a free project</li>
+        <li>In the project: <strong>Firestore Database</strong> → Create database → Start in <em>test mode</em></li>
+        <li><strong>Project Settings</strong> → Your apps → Add Web app → copy the config object</li>
+        <li>Open <code>family-hub.html</code> in a text editor and paste values into <code>FIREBASE_CONFIG</code> at the top of the &lt;script&gt;</li>
+        <li>Deploy to Vercel — done! Default login: <code>sreynolds / password123</code></li>
+      </ol>
+      <div style="margin-top:.75rem;opacity:.75;font-size:.75rem;">Free Spark plan is plenty for a family — no credit card needed.</div>
+    </div>
   </div>
 </div>
 
@@ -741,33 +761,60 @@ async function sha256(str) {
 }
 
 // ══════════════════════════════════════
-// STORAGE HELPERS
+// FIREBASE CONFIG — paste your values here
+// Get these from: console.firebase.google.com
+// → Your project → Project Settings → Your apps → Web app → SDK snippet
 // ══════════════════════════════════════
-async function stGet(key, shared) {
-  try {
-    var r = await window.storage.get(key, shared || false);
-    return r ? JSON.parse(r.value) : null;
-  } catch(e) { return null; }
-}
-async function stSet(key, val, shared) {
-  try {
-    await window.storage.set(key, JSON.stringify(val), shared || false);
-    return true;
-  } catch(e) { return false; }
-}
-async function stDel(key, shared) {
-  try { await window.storage.delete(key, shared || false); } catch(e) {}
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAL06ZiKLTqTnA1X8azeiX16mBrwkMah-M",
+    authDomain: "myfamilyhub-b424b.firebaseapp.com",
+    projectId: "myfamilyhub-b424b",
+    storageBucket: "myfamilyhub-b424b.firebasestorage.app",
+    messagingSenderId: "98166405229",
+    appId: "1:98166405229:web:ac0c88543999b6520f2764",
+    measurementId: "G-QVQDEB59G1"
+};
+
+// ── Firebase SDK (loaded via CDN in <head>, see top of file) ──
+var _db = null;
+function getDb() {
+  if(_db) return _db;
+  firebase.initializeApp(FIREBASE_CONFIG);
+  _db = firebase.firestore();
+  return _db;
 }
 
+// ══════════════════════════════════════
+// STORAGE HELPERS  (same API as before, now backed by Firestore)
+// All data lives in a single Firestore collection "kv" with doc id = key
+// ══════════════════════════════════════
+async function stGet(key) {
+  try {
+    var doc = await getDb().collection('kv').doc(encodeKey(key)).get();
+    return doc.exists ? doc.data().val : null;
+  } catch(e) { console.error('stGet',key,e); return null; }
+}
+async function stSet(key, val) {
+  try {
+    await getDb().collection('kv').doc(encodeKey(key)).set({val: val});
+    return true;
+  } catch(e) { console.error('stSet',key,e); return false; }
+}
+async function stDel(key) {
+  try { await getDb().collection('kv').doc(encodeKey(key)).delete(); } catch(e) {}
+}
+// Firestore doc IDs can't contain '/' — encode colons and slashes
+function encodeKey(k){ return k.replace(/\//g,'__sl__'); }
+
 // Family-scoped helpers
-async function famGet(key) { return stGet('fam:'+session.user.familyId+':'+key, true); }
-async function famSet(key, val) { return stSet('fam:'+session.user.familyId+':'+key, val, true); }
+async function famGet(key) { return stGet('fam:'+session.user.familyId+':'+key); }
+async function famSet(key, val) { return stSet('fam:'+session.user.familyId+':'+key, val); }
 
 // ══════════════════════════════════════
 // SEED INITIAL USERS (first run only)
 // ══════════════════════════════════════
 async function seedIfNeeded() {
-  var existing = await stGet('user:sreynolds', true);
+  var existing = await stGet('user:sreynolds');
   if (existing) return; // already seeded
 
   var hash1 = await sha256('password123');
@@ -820,13 +867,13 @@ async function seedIfNeeded() {
     {id:1, title:"Welcome to FamilyHub! 🏠", body:"This is your family's private space. Add events, plan meals, share photos, and keep everyone in sync.", author:'sreynolds', pinned:true, createdAt:Date.now()},
     {id:2, title:"Grocery reminder", body:"We're out of milk and bread. Can someone pick these up this week?", author:'sreynolds', pinned:false, createdAt:Date.now()-3600000}
   ];
-  await stSet('fam:reynolds:events', demoEvents, true);
-  await stSet('fam:reynolds:tasks', demoTasks, true);
-  await stSet('fam:reynolds:meals', demoMeals, true);
-  await stSet('fam:reynolds:shopping', demoShop, true);
-  await stSet('fam:reynolds:notes', demoNotes, true);
-  await stSet('fam:reynolds:photos', [], true);
-  await stSet('pending:signups', [], true);
+  await stSet('fam:reynolds:events', demoEvents);
+  await stSet('fam:reynolds:tasks', demoTasks);
+  await stSet('fam:reynolds:meals', demoMeals);
+  await stSet('fam:reynolds:shopping', demoShop);
+  await stSet('fam:reynolds:notes', demoNotes);
+  await stSet('fam:reynolds:photos', []);
+  await stSet('pending:signups', []);
 }
 
 // ══════════════════════════════════════
@@ -857,7 +904,7 @@ async function doLogin() {
   var username = document.getElementById('l-user').value.trim().toLowerCase();
   var password = document.getElementById('l-pass').value;
   if(!username||!password){showErr('login-err','Please enter username and password.');return;}
-  var user = await stGet('user:'+username, true);
+  var user = await stGet('user:'+username);
   if(!user){showErr('login-err','Account not found. Check your username.');return;}
   if(!user.approved){showErr('login-err','Your account is pending approval. The admin will activate it shortly.');return;}
   var hash = await sha256(password);
@@ -874,12 +921,12 @@ async function doSignupRequest() {
   var reason = document.getElementById('su-reason').value.trim();
   if(!name||!username||!family){showErr('signup-err','Please fill in all required fields.');return;}
   if(!/^[a-z0-9_]{3,20}$/.test(username)){showErr('signup-err','Username must be 3-20 chars, letters/numbers/underscores only.');return;}
-  var existing = await stGet('user:'+username, true);
+  var existing = await stGet('user:'+username);
   if(existing){showErr('signup-err','That username is already taken. Please choose another.');return;}
-  var pending = await stGet('pending:signups', true) || [];
+  var pending = await stGet('pending:signups') || [];
   if(pending.find(function(p){return p.username===username;})){showErr('signup-err','A request for that username is already pending.');return;}
   pending.push({username:username, displayName:name, familyName:family, reason:reason||'', requestedAt:Date.now()});
-  await stSet('pending:signups', pending, true);
+  await stSet('pending:signups', pending);
   showOk('signup-ok', '✅ Request sent! The admin will review it and create your account. You\'ll be notified when it\'s ready.');
   // In a real app we'd send an email — here we just log it
   console.log('New signup request for admin '+ADMIN_EMAIL+':', {username, name, family});
@@ -1182,7 +1229,7 @@ async function delNote(id){
 // ══════════════════════════════════════
 // Drive config stored globally (shared across all families, admin sets it)
 async function getDriveConfig(){
-  var cfg = await stGet('drive:config', true) || {};
+  var cfg = await stGet('drive:config') || {};
   return cfg; // {apiKey, folderId}
 }
 async function saveDriveApiKey(){
@@ -1190,7 +1237,7 @@ async function saveDriveApiKey(){
   if(!key){alert('Enter an API key');return;}
   var cfg = await getDriveConfig();
   cfg.apiKey = key;
-  await stSet('drive:config', cfg, true);
+  await stSet('drive:config', cfg);
   alert('✅ API key saved!');
   renderAdmin();
 }
@@ -1202,7 +1249,7 @@ async function saveDriveFolderId(){
   var folderId = match ? match[1] : raw;
   var cfg = await getDriveConfig();
   cfg.folderId = folderId;
-  await stSet('drive:config', cfg, true);
+  await stSet('drive:config', cfg);
   document.getElementById('drive-folder-input').value = '';
   await loadDrivePhotos();
 }
@@ -1561,14 +1608,14 @@ document.getElementById && document.addEventListener('DOMContentLoaded', functio
 // ADMIN PANEL
 // ══════════════════════════════════════
 async function checkPendingBadge(){
-  var pending = await stGet('pending:signups', true) || [];
+  var pending = await stGet('pending:signups') || [];
   var badge = document.getElementById('admin-badge');
   if(pending.length){badge.textContent=pending.length;badge.style.display='inline-block';}
   else badge.style.display='none';
 }
 
 async function renderAdmin(){
-  var pending = await stGet('pending:signups', true) || [];
+  var pending = await stGet('pending:signups') || [];
   var cfg = await getDriveConfig();
   // Populate Drive settings
   if(document.getElementById('admin-drive-key')){
@@ -1579,9 +1626,9 @@ async function renderAdmin(){
   var users=[], families=new Set();
   // We'll scan known user keys — in a real app you'd have an index
   // Here we store a user index
-  var userIndex = await stGet('user-index', true) || ['sreynolds','jreynolds'];
+  var userIndex = await stGet('user-index') || ['sreynolds','jreynolds'];
   for(var i=0;i<userIndex.length;i++){
-    var u=await stGet('user:'+userIndex[i],true);
+    var u=await stGet('user:'+userIndex[i]);
     if(u){users.push(u);families.add(u.familyId);}
   }
   document.getElementById('stat-users').textContent=users.length;
@@ -1607,7 +1654,7 @@ async function renderAdmin(){
 }
 
 async function approvePending(username) {
-  var pending = await stGet('pending:signups', true) || [];
+  var pending = await stGet('pending:signups') || [];
   var req = pending.find(function(p){return p.username===username;});
   if(!req) return;
   // Show create user modal pre-filled
@@ -1622,8 +1669,8 @@ async function approvePending(username) {
 
 async function rejectPending(username) {
   if(!confirm('Reject request from @'+username+'? This cannot be undone.')) return;
-  var pending = await stGet('pending:signups', true) || [];
-  await stSet('pending:signups', pending.filter(function(p){return p.username!==username;}), true);
+  var pending = await stGet('pending:signups') || [];
+  await stSet('pending:signups', pending.filter(function(p){return p.username!==username;}));
   checkPendingBadge();
   renderAdmin();
 }
@@ -1637,35 +1684,35 @@ async function createUser() {
   var role=document.getElementById('nu-role').value;
   if(!name||!username||!pass||!fam){showErr('newuser-err','All fields are required.');return;}
   if(!/^[a-z0-9_]{3,20}$/.test(username)){showErr('newuser-err','Invalid username format.');return;}
-  var existing=await stGet('user:'+username,true);
+  var existing=await stGet('user:'+username);
   if(existing){showErr('newuser-err','Username already exists.');return;}
   var hash=await sha256(pass);
   var newUser={username:username,passwordHash:hash,familyId:fam,role:role,displayName:name,approved:true,createdAt:Date.now()};
-  await stSet('user:'+username,newUser,true);
+  await stSet('user:'+username, newUser);
   // Update user index
-  var idx=await stGet('user-index',true)||['sreynolds','jreynolds'];
+  var idx=await stGet('user-index')||['sreynolds','jreynolds'];
   if(!idx.includes(username)) idx.push(username);
-  await stSet('user-index',idx,true);
+  await stSet('user-index', idx);
   // Remove from pending if this was an approval
   var approvingUsername = document.getElementById('ov-newuser').dataset.approvingUsername;
   if(approvingUsername){
-    var pending=await stGet('pending:signups',true)||[];
+    var pending=await stGet('pending:signups')||[];
     await stSet('pending:signups',pending.filter(function(p){return p.username!==approvingUsername;}),true);
     delete document.getElementById('ov-newuser').dataset.approvingUsername;
   }
   // Ensure family data structure exists
-  var famEvents=await stGet('fam:'+fam+':events',true);
-  if(!famEvents) await stSet('fam:'+fam+':events',[],true);
-  var famTasks=await stGet('fam:'+fam+':tasks',true);
-  if(!famTasks) await stSet('fam:'+fam+':tasks',[],true);
-  var famMeals=await stGet('fam:'+fam+':meals',true);
-  if(!famMeals) await stSet('fam:'+fam+':meals',{},true);
-  var famShop=await stGet('fam:'+fam+':shopping',true);
-  if(!famShop) await stSet('fam:'+fam+':shopping',[],true);
-  var famNotes=await stGet('fam:'+fam+':notes',true);
-  if(!famNotes) await stSet('fam:'+fam+':notes',[],true);
-  var famPhotos=await stGet('fam:'+fam+':photos',true);
-  if(!famPhotos) await stSet('fam:'+fam+':photos',[],true);
+  var famEvents=await stGet('fam:'+fam+':events');
+  if(!famEvents) await stSet('fam:'+fam+':events', []);
+  var famTasks=await stGet('fam:'+fam+':tasks');
+  if(!famTasks) await stSet('fam:'+fam+':tasks', []);
+  var famMeals=await stGet('fam:'+fam+':meals');
+  if(!famMeals) await stSet('fam:'+fam+':meals', {});
+  var famShop=await stGet('fam:'+fam+':shopping');
+  if(!famShop) await stSet('fam:'+fam+':shopping', []);
+  var famNotes=await stGet('fam:'+fam+':notes');
+  if(!famNotes) await stSet('fam:'+fam+':notes', []);
+  var famPhotos=await stGet('fam:'+fam+':photos');
+  if(!famPhotos) await stSet('fam:'+fam+':photos', []);
   closeModals();
   checkPendingBadge();
   renderAdmin();
@@ -1673,8 +1720,8 @@ async function createUser() {
 
 async function deleteUser(username) {
   if(!confirm('Delete account @'+username+'? This cannot be undone.')) return;
-  await stDel('user:'+username,true);
-  var idx=await stGet('user-index',true)||[];
+  await stDel('user:'+username);
+  var idx=await stGet('user-index')||[];
   await stSet('user-index',idx.filter(function(u){return u!==username;}),true);
   renderAdmin();
 }
@@ -1799,7 +1846,13 @@ function toggleChip(el){el.classList.toggle('on');}
 // BOOT
 // ══════════════════════════════════════
 window.addEventListener('load', function(){
-  seedIfNeeded().catch(function(e){console.error('seed error',e);});
+  // Show warning if Firebase not yet configured
+  if(FIREBASE_CONFIG.apiKey.indexOf('PASTE') !== -1) {
+    document.getElementById('firebase-warn').style.display = 'block';
+    document.getElementById('setup-guide').style.display = 'block';
+  } else {
+    seedIfNeeded().catch(function(e){console.error('seed error',e);});
+  }
 });
 </script>
 </body>
