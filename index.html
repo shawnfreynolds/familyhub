@@ -80,8 +80,9 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 .dd-sep{height:1px;background:var(--sand-d);margin:.375rem 0;}
 
 /* ── NAV ── */
-.bottomnav{position:fixed;bottom:0;left:0;right:0;background:var(--white);display:flex;box-shadow:0 -1px 0 var(--sand-d);z-index:100;padding-bottom:env(safe-area-inset-bottom);}
-.nb{flex:1;padding:.625rem .25rem .5rem;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-family:'DM Sans',sans-serif;font-size:.6rem;font-weight:600;color:var(--ink-l);transition:color .15s;}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;background:var(--white);display:flex;box-shadow:0 -1px 0 var(--sand-d);z-index:100;padding-bottom:env(safe-area-inset-bottom);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;}
+.bottomnav::-webkit-scrollbar{display:none;}
+.nb{flex:0 0 auto;min-width:60px;padding:.625rem .35rem .5rem;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.2rem;font-family:'DM Sans',sans-serif;font-size:.58rem;font-weight:600;color:var(--ink-l);transition:color .15s;}
 .nb .ni{font-size:1.25rem;transition:transform .15s;}
 .nb.on{color:var(--ocean);}
 .nb.on .ni{transform:scale(1.1);}
@@ -117,10 +118,12 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 .cd:hover{background:var(--ocean-ll);}
 .cd.today{background:var(--ocean);color:var(--white);}
 .cd.sel{background:var(--coral);color:var(--white);}
-.cd.hev::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--sun);}
-.cd.today.hev::after,.cd.sel.hev::after{background:rgba(255,255,255,.8);}
+.cal-dots{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);display:flex;gap:2px;align-items:center;max-width:90%;}
+.cal-dot-pip{width:5px;height:5px;border-radius:50%;flex-shrink:0;display:block;}
+.cd.today .cal-dot-pip,.cd.sel .cal-dot-pip{opacity:.85;}
 .cd.dim{opacity:.3;}
 .ev-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:var(--sand);border-radius:var(--rs);margin-bottom:.5rem;}
+.ev-date-sep{font-size:.72rem;font-weight:800;color:var(--ocean);text-transform:uppercase;letter-spacing:.07em;padding:.5rem 0 .25rem;margin-top:.125rem;}
 .ev-dot{width:11px;height:11px;border-radius:50%;margin-top:3px;flex-shrink:0;}
 .ev-info{flex:1;}
 .ev-name{font-weight:700;font-size:.9rem;}
@@ -200,10 +203,10 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 .lightbox-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:var(--white);border-radius:50%;width:40px;height:40px;font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
 /* ── AI CHEF ── */
-.chef-hero{background:linear-gradient(135deg,#0D4F6E,#1A6B8A,#2E9CBF);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;color:var(--white);display:flex;align-items:center;gap:1rem;}
-.chef-hero-ico{font-size:2.5rem;}
-.chef-hero h2{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;}
-.chef-hero p{font-size:.82rem;opacity:.85;margin-top:2px;}
+.helper-hero{background:linear-gradient(135deg,#0D4F6E,#1A6B8A,#2E9CBF);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;color:var(--white);display:flex;align-items:center;gap:1rem;}
+.helper-hero-ico{font-size:2.5rem;}
+.helper-hero h2{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;}
+.helper-hero p{font-size:.82rem;opacity:.85;margin-top:2px;}
 .qchips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
 .qchip{background:var(--white);border:2px solid var(--sand-d);border-radius:20px;padding:.375rem .875rem;font-size:.78rem;font-weight:700;color:var(--ink-m);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
 .qchip:hover{border-color:var(--ocean);color:var(--ocean);}
@@ -300,6 +303,38 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 
 /* ── UTILS ── */
 .section-lbl{font-size:.72rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.08em;padding:.75rem 0 .25rem;margin-top:.25rem;}
+
+/* ── WORKOUT ── */
+.wo-card{background:var(--white);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:.75rem;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:.875rem;}
+.wo-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px;}
+.wo-info{flex:1;}
+.wo-name{font-weight:700;font-size:.95rem;margin-bottom:2px;}
+.wo-meta{font-size:.75rem;color:var(--ink-m);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.2rem;}
+.wo-tag{font-size:.65rem;background:var(--ocean-ll);color:var(--ocean);font-weight:700;padding:2px 8px;border-radius:20px;}
+.wo-type-badge{font-size:.65rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+.wo-type-strength{background:#FEF3C7;color:#92400E;}
+.wo-type-cardio{background:var(--coral-l);color:var(--coral);}
+.wo-type-flexibility{background:var(--palm-ll);color:var(--palm);}
+.wo-type-sports{background:var(--ocean-ll);color:var(--ocean);}
+.wo-type-custom{background:var(--sand-d);color:var(--ink-m);}
+.wo-notes{font-size:.78rem;color:var(--ink-l);margin-top:.375rem;line-height:1.5;}
+.member-tab{padding:.45rem .875rem;border-radius:20px;border:2px solid var(--sand-d);background:var(--white);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;color:var(--ink-m);cursor:pointer;transition:all .15s;}
+.member-tab.on{color:#fff;border-color:transparent;}
+
+/* ── BUDGET ── */
+.btx-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--sand);border-radius:var(--rs);margin-bottom:.5rem;}
+.btx-icon{font-size:1.1rem;flex-shrink:0;}
+.btx-info{flex:1;}
+.btx-desc{font-weight:700;font-size:.875rem;}
+.btx-cat{font-size:.72rem;color:var(--ink-l);margin-top:1px;}
+.btx-amt{font-family:'Fraunces',serif;font-weight:900;font-size:1rem;}
+.btx-amt.income{color:var(--palm);}
+.btx-amt.expense{color:var(--coral);}
+.budget-cat-row{display:flex;align-items:center;gap:.625rem;margin-bottom:.625rem;}
+.budget-cat-bar{flex:1;height:8px;background:var(--sand-d);border-radius:20px;overflow:hidden;}
+.budget-cat-fill{height:100%;background:linear-gradient(90deg,var(--ocean),var(--ocean-l));border-radius:20px;transition:width .4s;}
+.budget-cat-lbl{font-size:.78rem;font-weight:700;color:var(--ink-m);white-space:nowrap;}
+.budget-cat-amt{font-size:.78rem;font-weight:700;color:var(--coral);white-space:nowrap;}
 @keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 /* Island body background — subtle wave pattern */
 body::before{content:'';position:fixed;inset:0;background:
@@ -420,7 +455,7 @@ pointer-events:none;z-index:0;}
       <div class="card-row">
         <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">🍽️ This Week</div>
         <div style="display:flex;gap:.5rem">
-          <button class="btn-sm" style="background:linear-gradient(135deg,#0D4F6E,var(--ocean));color:var(--white)" onclick="goSec('chef',document.getElementById('nb-chef'))">🤖 AI Plan</button>
+          <button class="btn-sm" style="background:linear-gradient(135deg,#0D4F6E,var(--ocean));color:var(--white)" onclick="goSec('helper',document.getElementById('nb-helper'))">🤖 AI Plan</button>
           <button class="btn-sm btn-sm-forest" onclick="openModal('meal')">+ Add</button>
         </div>
       </div>
@@ -428,17 +463,19 @@ pointer-events:none;z-index:0;}
     </div>
 
     <!-- AI CHEF -->
-    <div class="sec" id="sec-chef">
-      <div class="chef-hero">
-        <div class="chef-hero-ico">🤖</div>
-        <div><h2>Chef AI</h2><p>Tell me your family's tastes — I'll plan the week &amp; auto-fill your shopping list!</p></div>
+    <div class="sec" id="sec-helper">
+      <div class="helper-hero">
+        <div class="helper-hero-ico">🤖</div>
+        <div><h2>Helper AI</h2><p>Tell me your family's tastes — I'll plan the week &amp; auto-fill your shopping list!</p></div>
       </div>
       <div class="qchips">
-        <button class="qchip" onclick="qp('Plan a healthy week of family dinners')">🥗 Healthy</button>
-        <button class="qchip" onclick="qp('Quick meals under 30 mins each night')">⚡ Quick</button>
+        <button class="qchip" onclick="qp('Plan a healthy week of family dinners')">🥗 Meals</button>
+        <button class="qchip" onclick="qp('Quick meals under 30 mins each night')">⚡ Quick meals</button>
         <button class="qchip" onclick="qp('Kid-friendly meals everyone will love')">👶 Kid-friendly</button>
-        <button class="qchip" onclick="qp('Budget-friendly meals for the week')">💰 Budget</button>
-        <button class="qchip" onclick="qp('Different cuisine each night')">🌍 World tour</button>
+        <button class="qchip" onclick="qp('Budget-friendly meals for the week')">💰 Budget meals</button>
+        <button class="qchip" onclick="qp('Create a 7-day workout schedule for the whole family')">💪 Workouts</button>
+        <button class="qchip" onclick="qp('Plan 5 weekday workouts for an adult, mix of cardio and strength')">🏃 Adult fitness</button>
+        <button class="qchip" onclick="qp('Kid-friendly active activities for the week')">🧒 Kids active</button>
       </div>
       <div class="chatbox">
         <div class="msgs" id="msgs"></div>
@@ -484,45 +521,69 @@ pointer-events:none;z-index:0;}
       <div id="notes-list" style="margin-top:.75rem"></div>
     </div>
 
-    <!-- PHOTOS -->
-    <div class="sec" id="sec-photos">
+    <!-- WORKOUT -->
+    <div class="sec" id="sec-workout">
       <div class="card-row">
-        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">📸 Memory Wall</div>
-        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
-          <button class="btn-sm" style="background:var(--sun);color:var(--white)" onclick="startSlideshow()">▶ Slideshow</button>
-          <label class="btn-sm btn-sm-forest" style="cursor:pointer">+ Upload<input type="file" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(event)"></label>
+        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">💪 Workouts</div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="btn-sm" style="background:linear-gradient(135deg,#0D4F6E,var(--ocean));color:var(--white)" onclick="goSec('helper',document.getElementById('nb-helper'))">🤖 AI Plan</button>
+          <button class="btn-sm btn-sm-forest" onclick="openWorkoutModal()">+ Add Workout</button>
         </div>
       </div>
+      <div id="workout-member-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0;"></div>
+      <div id="workout-list-area"></div>
+    </div>
 
-      <!-- Google Drive panel -->
-      <div id="drive-panel" style="background:var(--white);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem;box-shadow:var(--shadow);border-left:4px solid #4285F4;">
-        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
-          <svg width="22" height="22" viewBox="0 0 87.3 78" style="flex-shrink:0"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg>
-          <div>
-            <div style="font-weight:700;font-size:.9rem;">Google Drive Album</div>
-            <div id="drive-status" style="font-size:.78rem;color:var(--ink-l);">Not connected — paste your folder ID below to link photos</div>
+    <!-- BUDGET -->
+    <div class="sec" id="sec-budget">
+      <div class="card-row">
+        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">💰 Family Budget</div>
+        <button class="btn-sm btn-sm-forest" onclick="openModal('budget-tx')">+ Add</button>
+      </div>
+      <!-- Month selector + summary -->
+      <div class="card" style="margin-bottom:.875rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;">
+          <button class="cnav" onclick="budgetMonthNav(-1)">&#8249;</button>
+          <div id="budget-month-lbl" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;"></div>
+          <button class="cnav" onclick="budgetMonthNav(1)">&#8250;</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.625rem;text-align:center;">
+          <div style="background:var(--palm-ll);border-radius:var(--rs);padding:.75rem .5rem;">
+            <div style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--palm)" id="budget-income-total">$0</div>
+            <div style="font-size:.7rem;color:var(--palm);font-weight:700;text-transform:uppercase;margin-top:2px;">Income</div>
           </div>
-          <button onclick="driveRefresh()" id="drive-refresh-btn" style="margin-left:auto;background:var(--sand);border:none;border-radius:var(--rs);padding:.4rem .75rem;font-size:.78rem;font-weight:700;cursor:pointer;display:none;">↻ Refresh</button>
+          <div style="background:var(--coral-l);border-radius:var(--rs);padding:.75rem .5rem;">
+            <div style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--coral)" id="budget-expense-total">$0</div>
+            <div style="font-size:.7rem;color:var(--coral);font-weight:700;text-transform:uppercase;margin-top:2px;">Spent</div>
+          </div>
+          <div style="background:var(--ocean-ll);border-radius:var(--rs);padding:.75rem .5rem;">
+            <div style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--ocean)" id="budget-net-total">$0</div>
+            <div style="font-size:.7rem;color:var(--ocean);font-weight:700;text-transform:uppercase;margin-top:2px;">Left</div>
+          </div>
         </div>
-        <div style="display:flex;gap:.5rem;">
-          <input id="drive-folder-input" class="fi" placeholder="Paste Google Drive folder ID…" style="font-size:.85rem;padding:.6rem .875rem;">
-          <button onclick="saveDriveFolderId()" style="background:#4285F4;color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Connect</button>
+        <!-- Monthly budget goal -->
+        <div style="margin-top:.875rem;display:flex;align-items:center;gap:.5rem;">
+          <span style="font-size:.78rem;font-weight:700;color:var(--ink-m);white-space:nowrap;">Monthly Budget Goal:</span>
+          <div style="display:flex;gap:.375rem;flex:1;align-items:center;">
+            <span style="font-weight:700;color:var(--ink-m);">$</span>
+            <input id="budget-goal-input" type="number" min="0" placeholder="e.g. 5000" style="flex:1;border:2px solid var(--sand-d);border-radius:var(--rs);padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;background:var(--sand);" onchange="saveBudgetGoal()">
+          </div>
         </div>
-        <div style="margin-top:.625rem;font-size:.73rem;color:var(--ink-l);line-height:1.5;">
-          📋 <strong>Setup:</strong> In Google Drive, right-click your photo folder → Share → "Anyone with the link" → Copy link. The folder ID is the long string after <code>/folders/</code> in the URL. Also needs a <strong>Google Drive API key</strong> — set it in the Admin panel.
+        <div class="pbar-wrap" style="margin-top:.5rem;">
+          <div class="pbar-fill" id="budget-pbar" style="width:0%;background:linear-gradient(90deg,var(--palm),var(--ocean-l));"></div>
         </div>
+        <div style="font-size:.72rem;color:var(--ink-l);text-align:right;font-weight:600;" id="budget-pbar-lbl"></div>
       </div>
-
-      <div class="upload-zone" onclick="document.querySelector('#sec-photos input[type=file]').click()">
-        <span class="upload-zone-ico">🖼️</span>
-        <div class="upload-zone-txt">Or tap here to upload photos directly from your device</div>
+      <!-- Category breakdown -->
+      <div class="card" style="margin-bottom:.875rem;">
+        <div class="card-title" style="margin-bottom:.75rem;">📊 By Category</div>
+        <div id="budget-cats"></div>
       </div>
-      <div id="drive-photos-section" style="display:none;">
-        <div style="font-size:.78rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.625rem;" id="drive-count-lbl"></div>
-        <div class="photo-grid" id="drive-photo-grid"></div>
+      <!-- Transaction list -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:.75rem;">📋 Transactions</div>
+        <div id="budget-tx-list"></div>
       </div>
-      <div style="font-size:.78rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.625rem;margin-top:.25rem;" id="local-photos-lbl" style="display:none"></div>
-      <div class="photo-grid" id="photo-grid"></div>
     </div>
 
     <!-- ADMIN -->
@@ -551,7 +612,7 @@ pointer-events:none;z-index:0;}
       </div>
       <div class="card">
         <div class="card-row">
-          <div class="card-title">🤖 Chef AI Settings</div>
+          <div class="card-title">🤖 Helper AI Settings</div>
         </div>
         <div style="font-size:.85rem;color:var(--ink-m);line-height:1.6;margin-bottom:.875rem;">
           The API key is stored securely as a <strong>Vercel Environment Variable</strong> — never in your code or database.<br>
@@ -588,13 +649,14 @@ pointer-events:none;z-index:0;}
   </div>
 
   <nav class="bottomnav" id="bottomnav">
-    <button class="nb on" id="nb-cal" onclick="goSec('cal',this)"><span class="ni">📅</span>Calendar</button>
+    <button class="nb" id="nb-cal" onclick="goSec('cal',this)"><span class="ni">📅</span>Calendar</button>
     <button class="nb" id="nb-tasks" onclick="goSec('tasks',this)"><span class="ni">✅</span>Tasks</button>
     <button class="nb" id="nb-meals" onclick="goSec('meals',this)"><span class="ni">🍽️</span>Meals</button>
-    <button class="nb" id="nb-chef" onclick="goSec('chef',this)"><span class="ni">🤖</span>Chef AI</button>
+    <button class="nb" id="nb-helper" onclick="goSec('helper',this)"><span class="ni">🤖</span>Helper AI</button>
     <button class="nb" id="nb-shop" onclick="goSec('shop',this)"><span class="ni">🛒</span>Shopping</button>
+    <button class="nb" id="nb-workout" onclick="goSec('workout',this)"><span class="ni">💪</span>Workouts</button>
+    <button class="nb" id="nb-budget" onclick="goSec('budget',this)"><span class="ni">💰</span>Budget</button>
     <button class="nb" id="nb-notes" onclick="goSec('notes',this)"><span class="ni">📝</span>Board</button>
-    <button class="nb" id="nb-photos" onclick="goSec('photos',this)"><span class="ni">📸</span>Photos</button>
     <button class="nb" id="nb-admin" onclick="goSec('admin',this)" style="display:none">
       <div class="nb-wrap"><span class="ni">⚙️</span><span class="nb-badge" id="admin-badge" style="display:none"></span></div>Admin
     </button>
@@ -641,38 +703,49 @@ pointer-events:none;z-index:0;}
 <!-- Event -->
 <div class="ov" id="ov-ev"><div class="modal">
   <div class="mhandle"></div><div class="mtitle">📅 Add Event</div>
-  <div class="fld"><label>Name</label><input class="fi" id="ev-n" placeholder="Soccer practice, Doctor appt…"></div>
+  <div class="fld"><label>Event Name</label><input class="fi" id="ev-n" placeholder="Soccer practice, Doctor appt…"></div>
   <div class="fr">
-    <div class="fld">
-      <label>Time</label>
-      <div style="display:flex;gap:.375rem;align-items:center;">
-        <input class="fi" id="ev-th" type="number" min="1" max="12" placeholder="12" style="width:52px;padding:.75rem .5rem;text-align:center;">
-        <span style="font-weight:700;color:var(--ink-l);">:</span>
-        <input class="fi" id="ev-tm" type="number" min="0" max="59" placeholder="00" style="width:52px;padding:.75rem .5rem;text-align:center;">
-        <select class="fi" id="ev-tampm" style="width:70px;padding:.75rem .375rem;">
-          <option>AM</option><option>PM</option>
-        </select>
-      </div>
-    </div>
-    <div class="fld"><label>Who</label><select class="fi" id="ev-w"><option value="">Everyone</option></select></div>
+    <div class="fld"><label>Start Date</label><input class="fi" id="ev-start" type="date"></div>
+    <div class="fld"><label>End Date <span style="font-weight:400;opacity:.6">(optional)</span></label><input class="fi" id="ev-end" type="date"></div>
   </div>
-  <div class="fld"><label>Color</label>
-    <div class="cpick" id="ev-cpick">
-      <div class="copt on" data-c="dot-or" onclick="pickCol(this)" style="background:#E9854C"></div>
-      <div class="copt" data-c="dot-gr" onclick="pickCol(this)" style="background:#40916C"></div>
-      <div class="copt" data-c="dot-bl" onclick="pickCol(this)" style="background:#4C89C8"></div>
-      <div class="copt" data-c="dot-pk" onclick="pickCol(this)" style="background:#C75B5B"></div>
-      <div class="copt" data-c="dot-ye" onclick="pickCol(this)" style="background:#E9A84C"></div>
+  <div class="fld">
+    <label>Time</label>
+    <div style="display:flex;gap:.375rem;align-items:center;">
+      <input class="fi" id="ev-th" type="number" min="1" max="12" placeholder="--" style="width:52px;padding:.75rem .5rem;text-align:center;">
+      <span style="font-weight:700;color:var(--ink-l);">:</span>
+      <select class="fi" id="ev-tm" style="width:72px;padding:.75rem .375rem;">
+        <option value="">--</option><option>00</option><option>15</option><option>30</option><option>45</option>
+      </select>
+      <select class="fi" id="ev-tampm" style="width:70px;padding:.75rem .375rem;">
+        <option>AM</option><option selected>PM</option>
+      </select>
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fld"><label>Who</label><select class="fi" id="ev-w"><option value="">Everyone</option></select></div>
+    <div class="fld"><label>Color</label>
+      <div class="cpick" id="ev-cpick">
+        <div class="copt on" data-c="dot-or" onclick="pickCol(this)" style="background:#E9854C"></div>
+        <div class="copt" data-c="dot-gr" onclick="pickCol(this)" style="background:#40916C"></div>
+        <div class="copt" data-c="dot-bl" onclick="pickCol(this)" style="background:#4C89C8"></div>
+        <div class="copt" data-c="dot-pk" onclick="pickCol(this)" style="background:#C75B5B"></div>
+        <div class="copt" data-c="dot-ye" onclick="pickCol(this)" style="background:#E9A84C"></div>
+      </div>
     </div>
   </div>
   <div class="fld"><label>Repeats</label>
     <div class="chips">
-      <div class="chip on" data-v="none" onclick="pickChip(this,'ev-repeat')">🚫 None</div>
-      <div class="chip" data-v="daily" onclick="pickChip(this,'ev-repeat')">📆 Daily</div>
-      <div class="chip" data-v="weekly" onclick="pickChip(this,'ev-repeat')">🔁 Weekly</div>
-      <div class="chip" data-v="monthly" onclick="pickChip(this,'ev-repeat')">📅 Monthly</div>
+      <div class="chip on" data-v="none" onclick="pickChip(this,'ev-repeat');document.getElementById('ev-repeat-end-row').style.display='none'">🚫 None</div>
+      <div class="chip" data-v="daily" onclick="pickChip(this,'ev-repeat');document.getElementById('ev-repeat-end-row').style.display=''">📆 Daily</div>
+      <div class="chip" data-v="weekly" onclick="pickChip(this,'ev-repeat');document.getElementById('ev-repeat-end-row').style.display=''">🔁 Weekly</div>
+      <div class="chip" data-v="biweekly" onclick="pickChip(this,'ev-repeat');document.getElementById('ev-repeat-end-row').style.display=''">🔁 Every 2 Wks</div>
+      <div class="chip" data-v="monthly" onclick="pickChip(this,'ev-repeat');document.getElementById('ev-repeat-end-row').style.display=''">📅 Monthly</div>
     </div>
     <input type="hidden" id="ev-repeat" value="none">
+  </div>
+  <div class="fld" id="ev-repeat-end-row" style="display:none">
+    <label>Repeat Until <span style="font-weight:400;opacity:.6">(end date)</span></label>
+    <input class="fi" id="ev-repeat-end" type="date">
   </div>
   <button class="sbtn" onclick="addEvent()">Add Event 🎉</button>
 </div></div>
@@ -845,6 +918,70 @@ pointer-events:none;z-index:0;}
   <button class="sbtn" onclick="addMember()">Add Member 👤</button>
 </div></div>
 
+<!-- Workout -->
+<div class="ov" id="ov-workout"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle" id="workout-modal-title">💪 Add Workout</div>
+  <input type="hidden" id="wo-id">
+  <div class="fld"><label>Workout Name</label><input class="fi" id="wo-name" placeholder="Morning Run, Chest Day, Yoga Flow…"></div>
+  <div class="fr">
+    <div class="fld"><label>Person</label><select class="fi" id="wo-who"><option value="">Everyone</option></select></div>
+    <div class="fld"><label>Schedule Tag</label><input class="fi" id="wo-tag" placeholder="Mon/Wed/Fri, Daily…"></div>
+  </div>
+  <div class="fld"><label>Type</label>
+    <div class="chips">
+      <div class="chip on" data-v="strength" onclick="pickChip(this,'wo-type')">🏋️ Strength</div>
+      <div class="chip" data-v="cardio" onclick="pickChip(this,'wo-type')">🏃 Cardio</div>
+      <div class="chip" data-v="flexibility" onclick="pickChip(this,'wo-type')">🧘 Flexibility</div>
+      <div class="chip" data-v="sports" onclick="pickChip(this,'wo-type')">⚽ Sports</div>
+      <div class="chip" data-v="custom" onclick="pickChip(this,'wo-type')">✏️ Custom</div>
+    </div>
+    <input type="hidden" id="wo-type" value="strength">
+  </div>
+  <div class="fld"><label>Duration</label>
+    <div class="chips">
+      <div class="chip on" data-v="30" onclick="pickChip(this,'wo-dur')">30 min</div>
+      <div class="chip" data-v="45" onclick="pickChip(this,'wo-dur')">45 min</div>
+      <div class="chip" data-v="60" onclick="pickChip(this,'wo-dur')">60 min</div>
+      <div class="chip" data-v="90" onclick="pickChip(this,'wo-dur')">90 min</div>
+    </div>
+    <input type="hidden" id="wo-dur" value="30">
+  </div>
+  <div class="fld"><label>Notes / Exercises</label><textarea class="fi" id="wo-notes" rows="3" placeholder="3x10 bench press, 20 min run, etc…" style="resize:none"></textarea></div>
+  <button class="sbtn" onclick="saveWorkout()">Save Workout 💪</button>
+</div></div>
+
+<!-- Budget Transaction -->
+<div class="ov" id="ov-budget-tx"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">💰 Add Transaction</div>
+  <div class="fld"><label>Type</label>
+    <div class="chips">
+      <div class="chip on" data-v="expense" onclick="pickChip(this,'btx-type')">💸 Expense</div>
+      <div class="chip" data-v="income" onclick="pickChip(this,'btx-type')">💵 Income</div>
+    </div>
+    <input type="hidden" id="btx-type" value="expense">
+  </div>
+  <div class="fld"><label>Description</label><input class="fi" id="btx-desc" placeholder="Groceries, Salary, Rent…"></div>
+  <div class="fr">
+    <div class="fld"><label>Amount ($)</label><input class="fi" id="btx-amt" type="number" min="0" step="0.01" placeholder="0.00"></div>
+    <div class="fld"><label>Date</label><input class="fi" id="btx-date" type="date"></div>
+  </div>
+  <div class="fld"><label>Category</label>
+    <div class="chips" style="flex-wrap:wrap;">
+      <div class="chip on" data-v="🛒 Groceries" onclick="pickChip(this,'btx-cat')">🛒 Groceries</div>
+      <div class="chip" data-v="🏠 Housing" onclick="pickChip(this,'btx-cat')">🏠 Housing</div>
+      <div class="chip" data-v="🚗 Transport" onclick="pickChip(this,'btx-cat')">🚗 Transport</div>
+      <div class="chip" data-v="🍽️ Dining" onclick="pickChip(this,'btx-cat')">🍽️ Dining</div>
+      <div class="chip" data-v="⚕️ Health" onclick="pickChip(this,'btx-cat')">⚕️ Health</div>
+      <div class="chip" data-v="📚 Education" onclick="pickChip(this,'btx-cat')">📚 Education</div>
+      <div class="chip" data-v="🎉 Fun" onclick="pickChip(this,'btx-cat')">🎉 Fun</div>
+      <div class="chip" data-v="💼 Income" onclick="pickChip(this,'btx-cat')">💼 Income</div>
+      <div class="chip" data-v="📦 Other" onclick="pickChip(this,'btx-cat')">📦 Other</div>
+    </div>
+    <input type="hidden" id="btx-cat" value="🛒 Groceries">
+  </div>
+  <button class="sbtn" onclick="addBudgetTx()">Add Transaction 💰</button>
+</div></div>
+
 <!-- Create User (admin) -->
 <div class="ov" id="ov-newuser"><div class="modal">
   <div class="mhandle"></div><div class="mtitle">👤 Create New Account</div>
@@ -872,6 +1009,7 @@ pointer-events:none;z-index:0;}
 // ══════════════════════════════════════
 var ADMIN_EMAIL = 'shawn.f.reynolds@gmail.com';
 var DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+var dotColorMap = {'dot-or':'#E9854C','dot-gr':'#40916C','dot-bl':'#4C89C8','dot-pk':'#C75B5B','dot-ye':'#E9A84C'};
 var SLOTS = ['breakfast','lunch','dinner','snack'];
 var SICO = {breakfast:'🌅',lunch:'☀️',dinner:'🌙',snack:'🍎'};
 var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1122,8 +1260,11 @@ async function launchApp() {
   await migrateShoppingToImperial();
   await renderShop(); // re-render after migration
   await renderNotes();
-  await renderPhotos();
-  initChat();
+  await renderWorkouts();
+  renderBudget();
+  initHelper();
+  // Activate calendar nav
+  document.getElementById('nb-cal').classList.add('on');
 }
 
 // ══════════════════════════════════════
@@ -1132,9 +1273,12 @@ async function launchApp() {
 function goSec(name, btn) {
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
-  document.getElementById('sec-'+name).classList.add('on');
+  var secEl = document.getElementById('sec-'+name);
+  if(secEl) secEl.classList.add('on');
   if(btn) btn.classList.add('on');
   if(name==='admin') renderAdmin();
+  if(name==='budget') renderBudget();
+  if(name==='workout') renderWorkouts();
 }
 function toggleDrop(){document.getElementById('user-drop').classList.toggle('on');}
 document.addEventListener('click',function(e){
@@ -1302,26 +1446,41 @@ function pickDay(d){
   renderEvents();
 }
 
+function evDotHtml(e){
+  if(e.colHex) return '<div class="ev-dot" style="background:'+e.colHex+'"></div>';
+  return '<div class="ev-dot '+(e.col||'dot-or')+'"></div>';
+}
 async function renderEvents() {
   var evs = await famGet('events') || [];
   var list = document.getElementById('ev-list');
-  var ds = selDate.toISOString().split('T')[0];
-  var dayEvs = evs.filter(function(e){return e.date===ds;});
   var DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var isT=selDate.toDateString()===new Date().toDateString();
-  document.getElementById('ev-date-lbl').textContent = isT?'Today':DN[selDate.getDay()]+', '+MN[selDate.getMonth()]+' '+selDate.getDate();
-  if(!dayEvs.length){list.innerHTML='<div class="empty"><span class="empty-ico">📭</span>Nothing scheduled — enjoy the day!</div>';return;}
-  list.innerHTML=dayEvs.map(function(e){
-    var dotStyle = e.colHex
-      ? 'style="background:'+e.colHex+'"'
-      : '';
-    var dotClass = e.colHex ? '' : (e.col||'dot-or');
-    var whoTag = e.who ? (' &nbsp;'+whoPill(e.who)) : '';
-    var repeatIcon = e.repeatId ? ' <span style="font-size:.68rem;color:var(--ink-l)">🔁</span>' : '';
-    var delArg = e.repeatId ? e.id+',\''+e.repeatId+'\'' : e.id;
-    return '<div class="ev-item">'
-      +'<div class="ev-dot '+dotClass+'" '+dotStyle+'></div>'
+  var todayDs = new Date().toISOString().split('T')[0];
+  // Next 8 upcoming events from today, sorted by date
+  var upcoming = evs.filter(function(e){ return e.date >= todayDs; });
+  upcoming.sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; });
+  // De-dupe same-day same-title (multi-day spans show once per day which is fine)
+  upcoming = upcoming.slice(0,8);
+  document.getElementById('ev-date-lbl').textContent = '🗓 Upcoming Events';
+  if(!upcoming.length){list.innerHTML='<div class="empty"><span class="empty-ico">📭</span>No upcoming events — add one!</div>';return;}
+  var lastDate='';
+  list.innerHTML=upcoming.map(function(e){
+    var ds=e.date;
+    var dateObj=new Date(ds+'T12:00:00');
+    var isT=ds===todayDs;
+    var header='';
+    if(ds!==lastDate){
+      lastDate=ds;
+      var lbl=isT?'Today — '+MN[dateObj.getMonth()]+' '+dateObj.getDate()
+        :DN[dateObj.getDay()]+', '+MN[dateObj.getMonth()]+' '+dateObj.getDate();
+      header='<div class="ev-date-sep">'+lbl+'</div>';
+    }
+    var whoTag=e.who?' &nbsp;'+whoPill(e.who):'';
+    var repeatIcon=e.repeatId?' <span style="font-size:.68rem;color:var(--ink-l)">🔁</span>':'';
+    var delArg=e.repeatId?e.id+',\''+e.repeatId+'\'':e.id;
+    return header
+      +'<div class="ev-item">'
+      +evDotHtml(e)
       +'<div class="ev-info"><div class="ev-name">'+e.title+repeatIcon+'</div>'
       +'<div class="ev-meta">'+(e.time?'⏰ '+e.time:'')+whoTag+'</div></div>'
       +'<button class="xbtn" style="opacity:.5;font-size:.8rem" title="Edit" onclick="openEventEdit('+e.id+')">✏️</button>'
@@ -1333,37 +1492,58 @@ async function renderEvents() {
 async function addEvent() {
   var name=document.getElementById('ev-n').value.trim();
   if(!name){alert('Please enter an event name');return;}
+  var startDate=document.getElementById('ev-start').value || (selDate||new Date()).toISOString().split('T')[0];
+  var endDate=document.getElementById('ev-end').value || startDate;
   var h=document.getElementById('ev-th').value.trim();
-  var m=document.getElementById('ev-tm').value.trim();
+  var m=document.getElementById('ev-tm').value;
   var ampm=document.getElementById('ev-tampm').value;
   var timeStr='';
-  if(h){
-    var mm=m?m.padStart(2,'0'):'00';
-    timeStr=h+':'+mm+' '+ampm;
-  }
+  if(h){var mm=m||'00';timeStr=h+':'+mm+' '+ampm;}
   var who=document.getElementById('ev-w').value;
-  // auto-use member color if member selected
-  var col=selCol;
   var mc=getMemberColor(who);
-  // map member hex color to dot class or store hex directly
-  var colHex = mc || null;
-
+  var colHex=mc||null;
+  var col=selCol;
   var repeat=document.getElementById('ev-repeat').value;
-  var baseDate=(selDate||new Date()).toISOString().split('T')[0];
+  var repeatEndRaw=document.getElementById('ev-repeat-end').value;
+  var repeatEnd=repeatEndRaw||null;
+  var repeatId=repeat!=='none'?'r'+Date.now():null;
   var evs=await famGet('events')||[];
-  var base={id:Date.now(), date:baseDate, title:name, time:timeStr, who:who, col:col, colHex:colHex, repeat:repeat, repeatId:repeat!=='none'?'r'+Date.now():null, addedBy:session.user.username};
+  var baseTs=Date.now();
 
-  // Generate occurrences for repeating events (up to 52 weeks / 12 months)
+  function pushRange(fromDs,toDs,extraId){
+    // Push one event per day between from and to (inclusive) for multi-day events
+    var cur=new Date(fromDs+'T12:00:00');
+    var end=new Date(toDs+'T12:00:00');
+    var i=0;
+    while(cur<=end){
+      evs.push({id:baseTs+(extraId||0)+(i++),date:cur.toISOString().split('T')[0],title:name,time:timeStr,who:who,col:col,colHex:colHex,repeat:repeat,repeatId:repeatId,addedBy:session.user.username});
+      cur.setDate(cur.getDate()+1);
+    }
+  }
+
   if(repeat==='none'){
-    evs.push(base);
+    pushRange(startDate,endDate,0);
   } else {
-    var count = repeat==='daily'?60 : repeat==='weekly'?52 : 12;
-    for(var i=0;i<count;i++){
-      var d2=new Date(baseDate+'T12:00:00');
-      if(repeat==='daily') d2.setDate(d2.getDate()+i);
-      else if(repeat==='weekly') d2.setDate(d2.getDate()+(i*7));
-      else d2.setMonth(d2.getMonth()+i);
-      evs.push(Object.assign({},base,{id:Date.now()+i, date:d2.toISOString().split('T')[0]}));
+    // Build occurrences from startDate until repeatEnd (or sensible default)
+    var limitDate;
+    if(repeatEnd){
+      limitDate=new Date(repeatEnd+'T12:00:00');
+    } else {
+      limitDate=new Date(startDate+'T12:00:00');
+      if(repeat==='daily') limitDate.setDate(limitDate.getDate()+59);
+      else if(repeat==='weekly') limitDate.setDate(limitDate.getDate()+51*7);
+      else if(repeat==='biweekly') limitDate.setDate(limitDate.getDate()+51*14);
+      else limitDate.setMonth(limitDate.getMonth()+11);
+    }
+    var cur=new Date(startDate+'T12:00:00');
+    var step=0;
+    while(cur<=limitDate){
+      var ds=cur.toISOString().split('T')[0];
+      evs.push({id:baseTs+(step++),date:ds,title:name,time:timeStr,who:who,col:col,colHex:colHex,repeat:repeat,repeatId:repeatId,addedBy:session.user.username});
+      if(repeat==='daily') cur.setDate(cur.getDate()+1);
+      else if(repeat==='weekly') cur.setDate(cur.getDate()+7);
+      else if(repeat==='biweekly') cur.setDate(cur.getDate()+14);
+      else cur.setMonth(cur.getMonth()+1);
     }
   }
   await famSet('events',evs);
@@ -1534,7 +1714,7 @@ async function renderShop(){
   document.getElementById('shop-lbl').textContent=done+' of '+total+' items checked';
   document.getElementById('shop-bar').style.width=total?(done/total*100)+'%':'0%';
   var list=document.getElementById('shop-list');
-  if(!total){list.innerHTML='<div class="empty"><span class="empty-ico">🛒</span>All clear! Add items or use 🤖 Chef AI.</div>';return;}
+  if(!total){list.innerHTML='<div class="empty"><span class="empty-ico">🛒</span>All clear! Add items or use 🤖 Helper AI.</div>';return;}
   var cats={};
   items.forEach(function(i){if(!cats[i.cat])cats[i.cat]=[];cats[i.cat].push(i);});
   list.innerHTML=Object.keys(cats).map(function(cat){
@@ -1634,7 +1814,7 @@ async function testAnthropicKey(){
     if(data.error){
       statusEl.innerHTML = '❌ <span style="color:var(--coral)">Error: ' + (data.error.message||JSON.stringify(data.error)) + '</span>';
     } else if(data.content && data.content.length){
-      statusEl.innerHTML = '✅ <span style="color:var(--ocean)">Connected! Chef AI is working.</span>';
+      statusEl.innerHTML = '✅ <span style="color:var(--ocean)">Connected! Helper AI is working.</span>';
     } else {
       statusEl.innerHTML = '⚠️ <span style="color:#B45309">Unexpected: ' + JSON.stringify(data).substring(0,120) + '</span>';
     }
@@ -1798,7 +1978,6 @@ async function savePhoto() {
   var remaining = pendingPhotoData.remaining || [];
   pendingPhotoData = null;
   closeModals();
-  await renderPhotos();
   if(remaining.length) {
     processPhotoFile(remaining[0], function(dataUrl){
       pendingPhotoData = {data:dataUrl, remaining:remaining.slice(1)};
@@ -2028,7 +2207,7 @@ async function checkPendingBadge(){
 async function renderAdmin(){
   var pending = await stGet('pending:signups') || [];
   var cfg = await getDriveConfig();
-  // Chef AI — status shown via Test button, nothing to load here
+  // Helper AI — status shown via Test button, nothing to load here
   renderMembers();
   // Populate Drive settings
   if(document.getElementById('admin-drive-key')){
@@ -2142,10 +2321,10 @@ async function deleteUser(username) {
 // ══════════════════════════════════════
 // AI CHEF
 // ══════════════════════════════════════
-function initChat(){
+function initHelper(){
   chatHist=[];
   document.getElementById('msgs').innerHTML='';
-  aiMsg("👋 Hi! I'm Chef AI — your family meal planner!\n\nTell me about your family:\n• How many people and kids' ages?\n• Favourite foods or things to avoid?\n• Any dietary needs?\n• How much time to cook on weeknights?\n\nOr tap a quick prompt — I'll plan the full week and auto-fill your shopping list! 🛒");
+  aiMsg("👋 Hi! I'm Helper AI — your family meal planner!\n\nTell me about your family:\n• How many people and kids' ages?\n• Favourite foods or things to avoid?\n• Any dietary needs?\n• How much time to cook on weeknights?\n\nOr tap a quick prompt — I'll plan the full week and auto-fill your shopping list! 🛒");
 }
 function aiMsg(text){
   var msgs=document.getElementById('msgs');
@@ -2186,7 +2365,7 @@ async function sendMsg(){
     var e=SLOTS.filter(function(s){return m[s];}).map(function(s){return s+': '+m[s];});
     return e.length?d+': '+e.join(', '):null;
   }).filter(Boolean).join('\n');
-  var sys='You are Chef AI, a friendly family meal planner. Help busy parents plan meals and build shopping lists. IMPORTANT: Always use US imperial measurements (lbs, oz, cups, gallons, quarts, pints, fl oz, tablespoons, teaspoons) — never metric.\n\nWhen you have enough info or are asked for a plan, generate one and include it at the END of your message in this EXACT format:\n\n<MEAL_PLAN>\n{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},"Wednesday":{"breakfast":"","lunch":"Tomato soup","dinner":"Grilled Salmon","snack":""},"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},"Sunday":{"breakfast":"Eggs on toast","lunch":"","dinner":"Roast Chicken","snack":""}},"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Salmon fillets","qty":"4 pieces","cat":"🥩 Meat & Fish"},{"name":"Ground beef","qty":"1 lb","cat":"🥩 Meat & Fish"},{"name":"Spaghetti","qty":"1 lb box","cat":"🥫 Pantry"},{"name":"Tomatoes","qty":"6","cat":"🥦 Produce"},{"name":"Eggs","qty":"1 dozen","cat":"🧀 Dairy"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n</MEAL_PLAN>\n\nCategories: 🥦 Produce, 🥩 Meat & Fish, 🧀 Dairy, 🥖 Bakery, 🥫 Pantry, 🧊 Frozen, 🧴 Household, 🍭 Snacks\nLeave slots as "" if not needed. Only include main ingredients for a family of 4, skip staples like salt/oil/pepper.\n\n'+(existingMeals?'Current meal plan:\n'+existingMeals:'No meals planned yet.');
+  var sys='You are Helper AI, a friendly family meal planner. Help busy parents plan meals and build shopping lists. IMPORTANT: Always use US imperial measurements (lbs, oz, cups, gallons, quarts, pints, fl oz, tablespoons, teaspoons) — never metric.\n\nWhen you have enough info or are asked for a plan, generate one and include it at the END of your message in this EXACT format:\n\n<MEAL_PLAN>\n{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},"Wednesday":{"breakfast":"","lunch":"Tomato soup","dinner":"Grilled Salmon","snack":""},"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},"Sunday":{"breakfast":"Eggs on toast","lunch":"","dinner":"Roast Chicken","snack":""}},"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Salmon fillets","qty":"4 pieces","cat":"🥩 Meat & Fish"},{"name":"Ground beef","qty":"1 lb","cat":"🥩 Meat & Fish"},{"name":"Spaghetti","qty":"1 lb box","cat":"🥫 Pantry"},{"name":"Tomatoes","qty":"6","cat":"🥦 Produce"},{"name":"Eggs","qty":"1 dozen","cat":"🧀 Dairy"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n</MEAL_PLAN>\n\nCategories: 🥦 Produce, 🥩 Meat & Fish, 🧀 Dairy, 🥖 Bakery, 🥫 Pantry, 🧊 Frozen, 🧴 Household, 🍭 Snacks\nLeave slots as "" if not needed. Only include main ingredients for a family of 4, skip staples like salt/oil/pepper.\n\n'+(existingMeals?'Current meal plan:\n'+existingMeals:'No meals planned yet.');
   // Call our server-side proxy (api/chat.js) — key never touches the browser
   fetch('/api/chat',{
     method:'POST',
@@ -2220,7 +2399,7 @@ async function sendMsg(){
   }).catch(function(err){
     hideTyping();aiTyping=false;document.getElementById('csend').disabled=false;
     aiMsg("😔 Network error: " + err.message + "\n\nCheck browser console (F12) for details.");
-    console.error('Chef AI fetch error:', err);
+    console.error('Helper AI fetch error:', err);
   });
 }
 function showAIPlanCard(plan){
@@ -2246,7 +2425,7 @@ async function applyPlan(){
   var existing=new Set(items.map(function(i){return i.name.toLowerCase();}));
   (pendingPlan.shopping||[]).forEach(function(item){
     if(!existing.has(item.name.toLowerCase())){
-      items.push({id:Date.now()+Math.random(),name:item.name,qty:item.qty,cat:item.cat,done:false,ai:true,addedBy:'Chef AI'});
+      items.push({id:Date.now()+Math.random(),name:item.name,qty:item.qty,cat:item.cat,done:false,ai:true,addedBy:'Helper AI'});
       existing.add(item.name.toLowerCase());
     }
   });
@@ -2280,6 +2459,15 @@ function openModal(id){
   });
   // Populate member dropdowns when needed
   if(id==='ev'||id==='task'||id==='evedit') populateMemberDropdowns();
+  // Default today's date for budget transactions and events
+  if(id==='budget-tx'){
+    var bdate = document.getElementById('btx-date');
+    if(bdate && !bdate.value) bdate.value = new Date().toISOString().split('T')[0];
+  }
+  if(id==='ev'){
+    var evstart = document.getElementById('ev-start');
+    if(evstart && !evstart.value) evstart.value = (selDate||new Date()).toISOString().split('T')[0];
+  }
   // Reset color pickers to first swatch
   el.querySelectorAll('.cpick .copt, .member-chip-pick .mcp').forEach(function(o,i,arr){
     // reset all in same parent
@@ -2300,6 +2488,255 @@ function toggleChip(el){el.classList.toggle('on');}
 // ══════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════
+// ══════════════════════════════════════
+// WORKOUTS
+// ══════════════════════════════════════
+var selWorkoutMember = ''; // '' = Everyone / All
+
+async function renderWorkouts() {
+  await loadMembers();
+  // Build member tabs
+  var tabsEl = document.getElementById('workout-member-tabs');
+  var allMembers = [{name:'All', color:'#8AA5B5'}].concat(membersCache);
+  tabsEl.innerHTML = allMembers.map(function(m){
+    var isSel = m.name === (selWorkoutMember||'All');
+    var bg = isSel ? m.color : '';
+    var border = isSel ? 'border-color:'+m.color : '';
+    return '<button class="member-tab'+(isSel?' on':'')+'" '
+      +'style="'+(isSel?'background:'+m.color+';color:#fff;border-color:'+m.color:'')
+      +'" onclick="selectWorkoutMember(\''+m.name+'\')">'
+      +(m.name==='All'?'👥 All':m.name)+'</button>';
+  }).join('');
+  // Load workouts
+  var workouts = await famGet('workouts') || [];
+  var filtered = selWorkoutMember && selWorkoutMember!=='All'
+    ? workouts.filter(function(w){ return w.who===selWorkoutMember; })
+    : workouts;
+  var area = document.getElementById('workout-list-area');
+  if(!filtered.length){
+    area.innerHTML='<div class="empty"><span class="empty-ico">💪</span>No workouts yet — add one or use Helper AI!</div>';
+    return;
+  }
+  // Group by person
+  var groups = {};
+  filtered.forEach(function(w){
+    var key = w.who||'Everyone';
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(w);
+  });
+  var typeIco = {strength:'🏋️',cardio:'🏃',flexibility:'🧘',sports:'⚽',custom:'✏️'};
+  area.innerHTML = Object.keys(groups).map(function(person){
+    var mc = getMemberColor(person);
+    var header = '<div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:'+(mc||'var(--ink-l)')+';padding:.625rem 0 .25rem;">'+person+'</div>';
+    return header + groups[person].map(function(w){
+      var typeCls = 'wo-type-'+(w.type||'custom');
+      return '<div class="wo-card">'
+        +'<div class="wo-icon">'+(typeIco[w.type]||'✏️')+'</div>'
+        +'<div class="wo-info">'
+        +'<div class="wo-name">'+w.name+'</div>'
+        +'<div class="wo-meta">'
+        +(w.tag?'<span class="wo-tag">'+w.tag+'</span>':'')
+        +'<span class="wo-type-badge '+typeCls+'">'+(w.type||'custom')+'</span>'
+        +(w.dur?'<span style="color:var(--ink-l)">⏱ '+w.dur+' min</span>':'')
+        +'</div>'
+        +(w.notes?'<div class="wo-notes">'+w.notes+'</div>':'')
+        +'</div>'
+        +'<button class="xbtn" style="opacity:.5;font-size:.8rem" onclick="editWorkout('+w.id+')">✏️</button>'
+        +'<button class="xbtn" onclick="delWorkout('+w.id+')">✕</button>'
+        +'</div>';
+    }).join('');
+  }).join('');
+}
+
+function selectWorkoutMember(name){
+  selWorkoutMember = name==='All' ? '' : name;
+  renderWorkouts();
+}
+
+async function openWorkoutModal(id){
+  await populateMemberDropdowns();
+  // set workout who dropdown
+  var woWho = document.getElementById('wo-who');
+  if(selWorkoutMember) woWho.value = selWorkoutMember;
+  if(id){
+    // Edit mode
+    var workouts = await famGet('workouts') || [];
+    var w = workouts.find(function(x){ return x.id===id; });
+    if(!w) return;
+    document.getElementById('workout-modal-title').textContent = '✏️ Edit Workout';
+    document.getElementById('wo-id').value = w.id;
+    document.getElementById('wo-name').value = w.name||'';
+    document.getElementById('wo-who').value = w.who||'';
+    document.getElementById('wo-tag').value = w.tag||'';
+    document.getElementById('wo-notes').value = w.notes||'';
+    document.getElementById('wo-type').value = w.type||'strength';
+    document.getElementById('wo-dur').value = w.dur||'30';
+    document.querySelectorAll('#ov-workout .chips').forEach(function(grp){
+      var hid = grp.nextElementSibling;
+      if(!hid||hid.type!=='hidden') return;
+      var val = document.getElementById(hid.id).value;
+      grp.querySelectorAll('.chip').forEach(function(c){ c.classList.toggle('on', c.getAttribute('data-v')===val); });
+    });
+  } else {
+    document.getElementById('workout-modal-title').textContent = '💪 Add Workout';
+    document.getElementById('wo-id').value = '';
+  }
+  document.getElementById('ov-workout').classList.add('on');
+}
+
+async function editWorkout(id){ openWorkoutModal(id); }
+
+async function saveWorkout(){
+  var name = document.getElementById('wo-name').value.trim();
+  if(!name){alert('Enter a workout name');return;}
+  var workouts = await famGet('workouts') || [];
+  var existingId = document.getElementById('wo-id').value;
+  var entry = {
+    id: existingId ? parseInt(existingId) : Date.now(),
+    name: name,
+    who: document.getElementById('wo-who').value,
+    tag: document.getElementById('wo-tag').value.trim(),
+    type: document.getElementById('wo-type').value,
+    dur: document.getElementById('wo-dur').value,
+    notes: document.getElementById('wo-notes').value.trim(),
+    addedBy: session.user.username,
+    createdAt: Date.now()
+  };
+  if(existingId){
+    var idx = workouts.findIndex(function(w){ return w.id===parseInt(existingId); });
+    if(idx>=0) workouts[idx]=entry; else workouts.push(entry);
+  } else {
+    workouts.push(entry);
+  }
+  await famSet('workouts', workouts);
+  closeModals();
+  renderWorkouts();
+}
+
+async function delWorkout(id){
+  var workouts = await famGet('workouts') || [];
+  await famSet('workouts', workouts.filter(function(w){ return w.id!==id; }));
+  renderWorkouts();
+}
+
+// ══════════════════════════════════════
+// BUDGET
+// ══════════════════════════════════════
+var budgetViewY = new Date().getFullYear();
+var budgetViewM = new Date().getMonth();
+
+function budgetMonthNav(dir){
+  budgetViewM += dir;
+  if(budgetViewM>11){budgetViewM=0;budgetViewY++;}
+  else if(budgetViewM<0){budgetViewM=11;budgetViewY--;}
+  renderBudget();
+}
+
+async function renderBudget(){
+  var MONTHS_SHORT=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var lbl = document.getElementById('budget-month-lbl');
+  if(lbl) lbl.textContent = MONTHS_SHORT[budgetViewM]+' '+budgetViewY;
+
+  var txKey = 'budget:'+budgetViewY+':'+pad(budgetViewM+1);
+  var txs = await famGet(txKey) || [];
+  var income = txs.filter(function(t){ return t.type==='income'; }).reduce(function(s,t){ return s+parseFloat(t.amt||0); },0);
+  var expenses = txs.filter(function(t){ return t.type==='expense'; }).reduce(function(s,t){ return s+parseFloat(t.amt||0); },0);
+  var net = income - expenses;
+
+  var fmt = function(n){ return '$'+Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); };
+  var incEl=document.getElementById('budget-income-total');
+  var expEl=document.getElementById('budget-expense-total');
+  var netEl=document.getElementById('budget-net-total');
+  if(incEl) incEl.textContent = fmt(income);
+  if(expEl) expEl.textContent = fmt(expenses);
+  if(netEl){ netEl.textContent = (net<0?'-':'')+fmt(net); netEl.style.color = net<0?'var(--coral)':'var(--ocean)'; }
+
+  // Budget goal
+  var goalData = await famGet('budget:goal') || {};
+  var goal = parseFloat(goalData.monthly||0);
+  var goalInput = document.getElementById('budget-goal-input');
+  if(goalInput && !goalInput.value && goal) goalInput.value = goal;
+  var pbar = document.getElementById('budget-pbar');
+  var pbarLbl = document.getElementById('budget-pbar-lbl');
+  if(pbar && goal>0){
+    var pct = Math.min(100, (expenses/goal*100)).toFixed(0);
+    pbar.style.width = pct+'%';
+    pbar.style.background = expenses>goal?'linear-gradient(90deg,var(--coral),#E8634A)':'linear-gradient(90deg,var(--palm),var(--ocean-l))';
+    if(pbarLbl) pbarLbl.textContent = pct+'% of $'+goal.toLocaleString()+' budget used';
+  } else if(pbar){ pbar.style.width='0%'; }
+
+  // Category breakdown (expenses only)
+  var catEl = document.getElementById('budget-cats');
+  if(catEl){
+    var cats = {};
+    txs.filter(function(t){ return t.type==='expense'; }).forEach(function(t){
+      cats[t.cat] = (cats[t.cat]||0) + parseFloat(t.amt||0);
+    });
+    var sorted = Object.keys(cats).sort(function(a,b){ return cats[b]-cats[a]; });
+    var maxVal = sorted.length ? cats[sorted[0]] : 1;
+    if(!sorted.length){ catEl.innerHTML='<div class="empty" style="padding:1rem">No expenses this month</div>'; }
+    else {
+      catEl.innerHTML = sorted.map(function(cat){
+        var pct = (cats[cat]/maxVal*100).toFixed(0);
+        return '<div class="budget-cat-row">'
+          +'<div class="budget-cat-lbl" style="width:110px">'+cat+'</div>'
+          +'<div class="budget-cat-bar"><div class="budget-cat-fill" style="width:'+pct+'%"></div></div>'
+          +'<div class="budget-cat-amt">'+fmt(cats[cat])+'</div>'
+          +'</div>';
+      }).join('');
+    }
+  }
+
+  // Transaction list (newest first)
+  var txEl = document.getElementById('budget-tx-list');
+  if(txEl){
+    var sorted2 = txs.slice().sort(function(a,b){ return b.date>a.date?1:b.date<a.date?-1:0; });
+    if(!sorted2.length){ txEl.innerHTML='<div class="empty"><span class="empty-ico">💳</span>No transactions yet — add income or expenses!</div>'; }
+    else {
+      txEl.innerHTML = sorted2.map(function(t){
+        return '<div class="btx-item">'
+          +'<div class="btx-icon">'+(t.type==='income'?'💵':'💸')+'</div>'
+          +'<div class="btx-info"><div class="btx-desc">'+t.desc+'</div><div class="btx-cat">'+t.cat+' · '+t.date+'</div></div>'
+          +'<div class="btx-amt '+(t.type==='income'?'income':'expense')+'">'+(t.type==='income'?'+':'-')+fmt(parseFloat(t.amt))+'</div>'
+          +'<button class="xbtn" onclick="delBudgetTx(\''+t.id+'\')">✕</button>'
+          +'</div>';
+      }).join('');
+    }
+  }
+}
+
+async function saveBudgetGoal(){
+  var val = parseFloat(document.getElementById('budget-goal-input').value)||0;
+  await famSet('budget:goal', {monthly:val});
+  renderBudget();
+}
+
+async function addBudgetTx(){
+  var desc = document.getElementById('btx-desc').value.trim();
+  var amt = parseFloat(document.getElementById('btx-amt').value);
+  var date = document.getElementById('btx-date').value || new Date().toISOString().split('T')[0];
+  if(!desc||!amt){alert('Enter a description and amount');return;}
+  var txKey = 'budget:'+budgetViewY+':'+pad(budgetViewM+1);
+  var txs = await famGet(txKey) || [];
+  txs.push({
+    id: 'tx'+Date.now(),
+    type: document.getElementById('btx-type').value,
+    desc: desc, amt: amt, date: date,
+    cat: document.getElementById('btx-cat').value,
+    addedBy: session.user.username
+  });
+  await famSet(txKey, txs);
+  closeModals();
+  renderBudget();
+}
+
+async function delBudgetTx(id){
+  var txKey = 'budget:'+budgetViewY+':'+pad(budgetViewM+1);
+  var txs = await famGet(txKey) || [];
+  await famSet(txKey, txs.filter(function(t){ return t.id!==id; }));
+  renderBudget();
+}
+
 window.addEventListener('load', function(){
   // Show warning if Firebase not yet configured
   if(FIREBASE_CONFIG.apiKey.indexOf('PASTE') !== -1) {
