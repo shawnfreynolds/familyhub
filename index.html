@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#2D6A4F">
-<title>Family Hub</title>
+<title>ReynoldsHub</title>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -275,6 +275,18 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 .sbtn{width:100%;padding:.85rem;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;background:var(--forest);color:var(--white);margin-top:.75rem;}
 .sbtn:hover{background:var(--forest-l);}
 
+/* ── MEMBER COLORS ── */
+.member-swatch{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.75rem;flex-shrink:0;}
+.member-row{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--sand);border-radius:var(--rs);margin-bottom:.5rem;}
+.member-row-info{flex:1;}
+.member-row-name{font-weight:700;font-size:.9rem;}
+.t-who-colored{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff;}
+.ev-who-tag{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff;display:inline-block;}
+.member-chip-pick{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.375rem;}
+.mcp{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.8rem;}
+.mcp:hover{transform:scale(1.15);}
+.mcp.on{border-color:var(--ink);transform:scale(1.1);}
+
 /* ── UTILS ── */
 .section-lbl{font-size:.72rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.08em;padding:.75rem 0 .25rem;margin-top:.25rem;}
 </style>
@@ -290,7 +302,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
     <div id="firebase-warn" style="display:none;background:#FEF3C7;border:2px solid #F59E0B;border-radius:var(--rs);padding:.875rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#92400E;font-weight:600;line-height:1.5;">
       ⚠️ <strong>Firebase not configured.</strong> Open the HTML file and paste your Firebase project credentials into the <code>FIREBASE_CONFIG</code> object near the top of the &lt;script&gt; tag. See the README below the login for setup steps.
     </div>
-    <div class="auth-logo">Family<span>Hub</span></div>
+    <div class="auth-logo">Reynolds<span>Hub</span></div>
     <div class="auth-sub">Sign in to your family account</div>
     <div class="auth-err" id="login-err"></div>
     <div class="fld"><label>Username</label><input id="l-user" placeholder="sreynolds" autocomplete="username"></div>
@@ -300,7 +312,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
   </div>
 
   <!-- SIGNUP REQUEST PANEL -->
-  <div class="auth-card" id="panel-signup" style="display:none">    <div class="auth-logo">Family<span>Hub</span></div>
+  <div class="auth-card" id="panel-signup" style="display:none">    <div class="auth-logo">Reynolds<span>Hub</span></div>
     <div class="auth-sub">Request a new family account — the admin will approve it shortly.</div>
     <div class="auth-err" id="signup-err"></div>
     <div class="auth-ok" id="signup-ok"></div>
@@ -333,7 +345,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 ══════════════════════════════════════ -->
 <div class="screen" id="s-app">
   <div class="topbar">
-    <div class="topbar-title">Family<span>Hub</span></div>
+    <div class="topbar-title">Reynolds<span>Hub</span></div>
     <div class="topbar-right">
       <div class="user-pill" id="user-pill" onclick="toggleDrop()">
         <div class="user-av" id="user-av">F</div>
@@ -507,6 +519,13 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
       </div>
       <div class="card">
         <div class="card-row">
+          <div class="card-title">👨‍👩‍👧‍👦 Family Members</div>
+          <button class="btn-sm btn-sm-forest" onclick="openModal('member')">+ Add Member</button>
+        </div>
+        <div id="members-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-row">
           <div class="card-title">🤖 Chef AI Settings</div>
         </div>
         <div style="font-size:.85rem;color:var(--ink-m);line-height:1.6;margin-bottom:.875rem;">
@@ -516,6 +535,10 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
         <div id="admin-anthropic-status" style="font-size:.78rem;font-weight:600;padding:.25rem 0;"></div>
         <button onclick="testAnthropicKey()" style="margin-top:.5rem;background:var(--sand);border:2px solid var(--sand-d);border-radius:var(--rs);padding:.45rem .875rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--ink-m);">🔌 Test Connection</button>
       </div>
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">🔑 Google Drive Settings</div>
+        </div>
         <div class="fld">
           <label>Drive API Key</label>
           <div style="display:flex;gap:.5rem;">
@@ -595,17 +618,36 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
   <div class="mhandle"></div><div class="mtitle">📅 Add Event</div>
   <div class="fld"><label>Name</label><input class="fi" id="ev-n" placeholder="Soccer practice, Doctor appt…"></div>
   <div class="fr">
-    <div class="fld"><label>Time</label><input class="fi" id="ev-t" type="time"></div>
-    <div class="fld"><label>Who</label><input class="fi" id="ev-w" placeholder="Emma, Jack…"></div>
+    <div class="fld">
+      <label>Time</label>
+      <div style="display:flex;gap:.375rem;align-items:center;">
+        <input class="fi" id="ev-th" type="number" min="1" max="12" placeholder="12" style="width:52px;padding:.75rem .5rem;text-align:center;">
+        <span style="font-weight:700;color:var(--ink-l);">:</span>
+        <input class="fi" id="ev-tm" type="number" min="0" max="59" placeholder="00" style="width:52px;padding:.75rem .5rem;text-align:center;">
+        <select class="fi" id="ev-tampm" style="width:70px;padding:.75rem .375rem;">
+          <option>AM</option><option>PM</option>
+        </select>
+      </div>
+    </div>
+    <div class="fld"><label>Who</label><select class="fi" id="ev-w"><option value="">Everyone</option></select></div>
   </div>
-  <div class="fld"><label>Colour</label>
-    <div class="cpick">
+  <div class="fld"><label>Color</label>
+    <div class="cpick" id="ev-cpick">
       <div class="copt on" data-c="dot-or" onclick="pickCol(this)" style="background:#E9854C"></div>
       <div class="copt" data-c="dot-gr" onclick="pickCol(this)" style="background:#40916C"></div>
       <div class="copt" data-c="dot-bl" onclick="pickCol(this)" style="background:#4C89C8"></div>
       <div class="copt" data-c="dot-pk" onclick="pickCol(this)" style="background:#C75B5B"></div>
       <div class="copt" data-c="dot-ye" onclick="pickCol(this)" style="background:#E9A84C"></div>
     </div>
+  </div>
+  <div class="fld"><label>Repeats</label>
+    <div class="chips">
+      <div class="chip on" data-v="none" onclick="pickChip(this,'ev-repeat')">🚫 None</div>
+      <div class="chip" data-v="daily" onclick="pickChip(this,'ev-repeat')">📆 Daily</div>
+      <div class="chip" data-v="weekly" onclick="pickChip(this,'ev-repeat')">🔁 Weekly</div>
+      <div class="chip" data-v="monthly" onclick="pickChip(this,'ev-repeat')">📅 Monthly</div>
+    </div>
+    <input type="hidden" id="ev-repeat" value="none">
   </div>
   <button class="sbtn" onclick="addEvent()">Add Event 🎉</button>
 </div></div>
@@ -614,7 +656,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 <div class="ov" id="ov-task"><div class="modal">
   <div class="mhandle"></div><div class="mtitle">✅ Add Task</div>
   <div class="fld"><label>Task</label><input class="fi" id="tk-n" placeholder="Clean room, Homework…"></div>
-  <div class="fld"><label>Assigned to</label><input class="fi" id="tk-w" placeholder="Jack, Emma, Everyone"></div>
+  <div class="fld"><label>Assigned to</label><select class="fi" id="tk-w"><option value="">Everyone</option></select></div>
   <div class="fld"><label>Priority</label>
     <div class="chips">
       <div class="chip on" data-v="h" onclick="pickChip(this,'tk-p')">🔴 High</div>
@@ -718,6 +760,26 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
   <button class="sbtn" onclick="savePhoto()">Add to Memory Wall 📸</button>
 </div></div>
 
+<!-- Add Family Member -->
+<div class="ov" id="ov-member"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle">👤 Add Family Member</div>
+  <div class="fld"><label>Name</label><input class="fi" id="mb-name" placeholder="Emma, Jack, Mom…"></div>
+  <div class="fld"><label>Color</label>
+    <div class="member-chip-pick" id="mb-color-pick">
+      <div class="mcp on" data-c="#E9854C" onclick="pickMemberCol(this)" style="background:#E9854C">A</div>
+      <div class="mcp" data-c="#40916C" onclick="pickMemberCol(this)" style="background:#40916C">A</div>
+      <div class="mcp" data-c="#4C89C8" onclick="pickMemberCol(this)" style="background:#4C89C8">A</div>
+      <div class="mcp" data-c="#C75B5B" onclick="pickMemberCol(this)" style="background:#C75B5B">A</div>
+      <div class="mcp" data-c="#9B59B6" onclick="pickMemberCol(this)" style="background:#9B59B6">A</div>
+      <div class="mcp" data-c="#E9A84C" onclick="pickMemberCol(this)" style="background:#E9A84C">A</div>
+      <div class="mcp" data-c="#1ABC9C" onclick="pickMemberCol(this)" style="background:#1ABC9C">A</div>
+      <div class="mcp" data-c="#E67E22" onclick="pickMemberCol(this)" style="background:#E67E22">A</div>
+    </div>
+    <input type="hidden" id="mb-color" value="#E9854C">
+  </div>
+  <button class="sbtn" onclick="addMember()">Add Member 👤</button>
+</div></div>
+
 <!-- Create User (admin) -->
 <div class="ov" id="ov-newuser"><div class="modal">
   <div class="mhandle"></div><div class="mtitle">👤 Create New Account</div>
@@ -754,6 +816,7 @@ var viewY = new Date().getFullYear();
 var viewM = new Date().getMonth();
 var selDate = new Date();
 var selCol = 'dot-or';
+var selMemberColor = '#E9854C';
 var chatHist = [];
 var pendingPlan = null;
 var aiTyping = false;
@@ -843,10 +906,10 @@ async function seedIfNeeded() {
   var today = new Date();
   function ds(o){var d=new Date(today);d.setDate(d.getDate()+o);return d.toISOString().split('T')[0];}
   var demoEvents = [
-    {id:1, date:ds(0), title:'Soccer practice', time:'4:00 PM', who:'Emma', col:'dot-gr'},
-    {id:2, date:ds(1), title:'Doctor checkup', time:'10:30 AM', who:'Jack', col:'dot-pk'},
-    {id:3, date:ds(3), title:'School play', time:'3:00 PM', who:'Emma', col:'dot-or'},
-    {id:4, date:ds(5), title:"Liam's birthday party", time:'2:00 PM', who:'Jack', col:'dot-ye'}
+    {id:1, date:ds(0), title:'Soccer practice', time:'4:00 PM', who:'Emma', col:'dot-pk', colHex:'#C75B5B', repeat:'none', repeatId:null, addedBy:'sreynolds'},
+    {id:2, date:ds(1), title:'Doctor checkup', time:'10:30 AM', who:'Jack', col:'dot-gr', colHex:'#40916C', repeat:'none', repeatId:null, addedBy:'sreynolds'},
+    {id:3, date:ds(3), title:'School play', time:'3:00 PM', who:'Emma', col:'dot-pk', colHex:'#C75B5B', repeat:'none', repeatId:null, addedBy:'sreynolds'},
+    {id:4, date:ds(5), title:"Liam's birthday party", time:'2:00 PM', who:'Jack', col:'dot-gr', colHex:'#40916C', repeat:'none', repeatId:null, addedBy:'sreynolds'}
   ];
   var demoTasks = [
     {id:1, title:'Clean bedroom', who:'Emma', pri:'h', done:false},
@@ -871,7 +934,7 @@ async function seedIfNeeded() {
     {id:4,name:'Pasta',qty:'1 lb box',cat:'🥫 Pantry',done:false,ai:false}
   ];
   var demoNotes = [
-    {id:1, title:"Welcome to FamilyHub! 🏠", body:"This is your family's private space. Add events, plan meals, share photos, and keep everyone in sync.", author:'sreynolds', pinned:true, createdAt:Date.now()},
+    {id:1, title:"Welcome to ReynoldsHub! 🏠", body:"This is your family's private space. Add events, plan meals, share photos, and keep everyone in sync.", author:'sreynolds', pinned:true, createdAt:Date.now()},
     {id:2, title:"Grocery reminder", body:"We're out of milk and bread. Can someone pick these up this week?", author:'sreynolds', pinned:false, createdAt:Date.now()-3600000}
   ];
   await stSet('fam:reynolds:events', demoEvents);
@@ -880,6 +943,12 @@ async function seedIfNeeded() {
   await stSet('fam:reynolds:shopping', demoShop);
   await stSet('fam:reynolds:notes', demoNotes);
   await stSet('fam:reynolds:photos', []);
+  await stSet('fam:reynolds:members', [
+    {id:1, name:'Shawn',  color:'#4C89C8'},
+    {id:2, name:'Emma',   color:'#C75B5B'},
+    {id:3, name:'Jack',   color:'#40916C'},
+    {id:4, name:'Mom',    color:'#9B59B6'}
+  ]);
   await stSet('pending:signups', []);
 }
 
@@ -975,6 +1044,9 @@ async function launchApp() {
   viewY = selDate.getFullYear();
   viewM = selDate.getMonth();
 
+  await loadMembers();
+  await populateMemberDropdowns();
+
   renderCal();
   await renderEvents();
   await renderTasks();
@@ -1001,6 +1073,104 @@ function toggleDrop(){document.getElementById('user-drop').classList.toggle('on'
 document.addEventListener('click',function(e){
   var pill=document.getElementById('user-pill');
   if(pill&&!pill.contains(e.target))document.getElementById('user-drop').classList.remove('on');
+});
+
+// ══════════════════════════════════════
+// FAMILY MEMBERS
+// ══════════════════════════════════════
+var membersCache = []; // [{id, name, color}]
+
+async function loadMembers(){
+  membersCache = await famGet('members') || [];
+  return membersCache;
+}
+
+function getMemberColor(name){
+  if(!name) return null;
+  var m = membersCache.find(function(x){ return x.name === name; });
+  return m ? m.color : null;
+}
+
+function memberSwatch(name, size){
+  var color = getMemberColor(name);
+  if(!color || !name) return '';
+  var s = size || 20;
+  return '<span style="display:inline-flex;align-items:center;justify-content:center;width:'+s+'px;height:'+s+'px;border-radius:50%;background:'+color+';color:#fff;font-weight:700;font-size:'+(s*0.45)+'px;flex-shrink:0;">'+name[0].toUpperCase()+'</span>';
+}
+
+function whoPill(name){
+  if(!name) return '';
+  var color = getMemberColor(name);
+  if(color){
+    return '<span class="t-who-colored" style="background:'+color+'">'+name+'</span>';
+  }
+  return '<span class="t-who">'+name+'</span>';
+}
+
+async function populateMemberDropdowns(){
+  var members = await loadMembers();
+  var opts = '<option value="">Everyone</option>' + members.map(function(m){
+    return '<option value="'+m.name+'">'+m.name+'</option>';
+  }).join('');
+  ['ev-w','tk-w'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.innerHTML = opts;
+  });
+}
+
+async function renderMembers(){
+  var members = await loadMembers();
+  var list = document.getElementById('members-list');
+  if(!list) return;
+  if(!members.length){
+    list.innerHTML = '<div class="empty"><span class="empty-ico">👨‍👩‍👧</span>No members yet — add your family!</div>';
+    return;
+  }
+  list.innerHTML = members.map(function(m){
+    return '<div class="member-row"><div class="member-swatch" style="background:'+m.color+'">'+m.name[0].toUpperCase()+'</div><div class="member-row-info"><div class="member-row-name">'+m.name+'</div></div><button class="xbtn" onclick="delMember('+m.id+')">✕</button></div>';
+  }).join('');
+}
+
+function pickMemberCol(el){
+  document.querySelectorAll('.mcp').forEach(function(o){o.classList.remove('on');});
+  el.classList.add('on');
+  selMemberColor = el.getAttribute('data-c');
+  // update letter in each swatch
+  var nameVal = (document.getElementById('mb-name')||{}).value||'A';
+  document.querySelectorAll('.mcp').forEach(function(o){ o.textContent = nameVal[0]||'A'; });
+}
+
+async function addMember(){
+  var name = document.getElementById('mb-name').value.trim();
+  if(!name){alert('Enter a name');return;}
+  var members = await famGet('members') || [];
+  members.push({id:Date.now(), name:name, color:selMemberColor});
+  await famSet('members', members);
+  membersCache = members;
+  closeModals();
+  renderMembers();
+  populateMemberDropdowns();
+  // reset
+  document.getElementById('mb-name').value = '';
+  selMemberColor = '#E9854C';
+  document.querySelectorAll('.mcp').forEach(function(o,i){ o.classList.toggle('on', i===0); });
+}
+
+async function delMember(id){
+  var members = await famGet('members') || [];
+  await famSet('members', members.filter(function(m){return m.id!==id;}));
+  membersCache = await famGet('members') || [];
+  renderMembers();
+  populateMemberDropdowns();
+}
+
+// Update member letter previews as user types name
+document.addEventListener('DOMContentLoaded', function(){
+  var nameInput = document.getElementById('mb-name');
+  if(nameInput) nameInput.addEventListener('input', function(){
+    var letter = this.value[0] ? this.value[0].toUpperCase() : 'A';
+    document.querySelectorAll('.mcp').forEach(function(o){ o.textContent = letter; });
+  });
 });
 
 // ══════════════════════════════════════
@@ -1057,21 +1227,69 @@ async function renderEvents() {
   document.getElementById('ev-date-lbl').textContent = isT?'Today':DN[selDate.getDay()]+', '+MN[selDate.getMonth()]+' '+selDate.getDate();
   if(!dayEvs.length){list.innerHTML='<div class="empty"><span class="empty-ico">📭</span>Nothing scheduled — enjoy the day!</div>';return;}
   list.innerHTML=dayEvs.map(function(e){
-    return '<div class="ev-item"><div class="ev-dot '+e.col+'"></div><div class="ev-info"><div class="ev-name">'+e.title+'</div><div class="ev-meta">'+(e.time?'⏰ '+e.time+' &nbsp;':'')+(e.who?'👤 '+e.who:'')+'</div></div><button class="xbtn" onclick="delEvent('+e.id+')">✕</button></div>';
+    var dotStyle = e.colHex
+      ? 'style="background:'+e.colHex+'"'
+      : '';
+    var dotClass = e.colHex ? '' : e.col;
+    var whoTag = e.who ? (' &nbsp;'+whoPill(e.who)) : '';
+    var repeatIcon = e.repeatId ? ' <span style="font-size:.68rem;color:var(--ink-l)">🔁</span>' : '';
+    var delArg = e.repeatId ? e.id+',\''+e.repeatId+'\'' : e.id;
+    return '<div class="ev-item"><div class="ev-dot '+dotClass+'" '+dotStyle+'></div><div class="ev-info"><div class="ev-name">'+e.title+repeatIcon+'</div><div class="ev-meta">'+(e.time?'⏰ '+e.time:'')+whoTag+'</div></div><button class="xbtn" onclick="delEvent('+delArg+')">✕</button></div>';
   }).join('');
 }
 
 async function addEvent() {
   var name=document.getElementById('ev-n').value.trim();
   if(!name){alert('Please enter an event name');return;}
+  var h=document.getElementById('ev-th').value.trim();
+  var m=document.getElementById('ev-tm').value.trim();
+  var ampm=document.getElementById('ev-tampm').value;
+  var timeStr='';
+  if(h){
+    var mm=m?m.padStart(2,'0'):'00';
+    timeStr=h+':'+mm+' '+ampm;
+  }
+  var who=document.getElementById('ev-w').value;
+  // auto-use member color if member selected
+  var col=selCol;
+  var mc=getMemberColor(who);
+  // map member hex color to dot class or store hex directly
+  var colHex = mc || null;
+
+  var repeat=document.getElementById('ev-repeat').value;
+  var baseDate=(selDate||new Date()).toISOString().split('T')[0];
   var evs=await famGet('events')||[];
-  evs.push({id:Date.now(), date:(selDate||new Date()).toISOString().split('T')[0], title:name, time:document.getElementById('ev-t').value, who:document.getElementById('ev-w').value.trim(), col:selCol, addedBy:session.user.username});
+  var base={id:Date.now(), date:baseDate, title:name, time:timeStr, who:who, col:col, colHex:colHex, repeat:repeat, repeatId:repeat!=='none'?'r'+Date.now():null, addedBy:session.user.username};
+
+  // Generate occurrences for repeating events (up to 52 weeks / 12 months)
+  if(repeat==='none'){
+    evs.push(base);
+  } else {
+    var count = repeat==='daily'?60 : repeat==='weekly'?52 : 12;
+    for(var i=0;i<count;i++){
+      var d2=new Date(baseDate+'T12:00:00');
+      if(repeat==='daily') d2.setDate(d2.getDate()+i);
+      else if(repeat==='weekly') d2.setDate(d2.getDate()+(i*7));
+      else d2.setMonth(d2.getMonth()+i);
+      evs.push(Object.assign({},base,{id:Date.now()+i, date:d2.toISOString().split('T')[0]}));
+    }
+  }
   await famSet('events',evs);
   closeModals(); renderCal(); renderEvents();
 }
-async function delEvent(id) {
+async function delEvent(id, repeatId) {
   var evs=await famGet('events')||[];
-  await famSet('events',evs.filter(function(e){return e.id!==id;}));
+  if(repeatId){
+    var choice=confirm('Delete all occurrences of this repeating event?\n\nOK = Delete all  |  Cancel = Delete just this one');
+    if(choice){
+      evs=evs.filter(function(e){return e.repeatId!==repeatId;});
+    } else {
+      evs=evs.filter(function(e){return e.id!==id;});
+    }
+  } else {
+    evs=evs.filter(function(e){return e.id!==id;});
+  }
+  await famSet('events',evs);
   renderCal(); renderEvents();
 }
 
@@ -1085,7 +1303,7 @@ async function renderTasks() {
   function rt(t){
     var pc=t.pri==='h'?'pri-h':t.pri==='m'?'pri-m':'pri-l';
     var pi=t.pri==='h'?'🔴':t.pri==='m'?'🟡':'🟢';
-    return '<div class="t-item'+(t.done?' dn':'')+'"><div class="tchk'+(t.done?' on':'')+'" onclick="togTask('+t.id+')">'+(t.done?'✓':'')+'</div><div class="t-lbl">'+t.title+'</div>'+(t.who?'<div class="t-who">'+t.who+'</div>':'')+'<div class="pri '+pc+'">'+pi+'</div><button class="xbtn" onclick="delTask('+t.id+')">✕</button></div>';
+    return '<div class="t-item'+(t.done?' dn':'')+'"><div class="tchk'+(t.done?' on':'')+'" onclick="togTask('+t.id+')">'+(t.done?'✓':'')+'</div><div class="t-lbl">'+t.title+'</div>'+(t.who?whoPill(t.who):'')+'<div class="pri '+pc+'">'+pi+'</div><button class="xbtn" onclick="delTask('+t.id+')">✕</button></div>';
   }
   var a=tasks.filter(function(t){return!t.done;}), d=tasks.filter(function(t){return t.done;});
   list.innerHTML=a.map(rt).join('')+(d.length?'<div class="section-lbl">Completed</div>'+d.map(rt).join(''):'');
@@ -1096,7 +1314,8 @@ async function addTask(){
   var name=document.getElementById('tk-n').value.trim();
   if(!name){alert('Enter a task');return;}
   var tasks=await famGet('tasks')||[];
-  tasks.unshift({id:Date.now(),title:name,who:document.getElementById('tk-w').value.trim(),pri:document.getElementById('tk-p').value,done:false,addedBy:session.user.username});
+  var who=document.getElementById('tk-w').value;
+  tasks.unshift({id:Date.now(),title:name,who:who,pri:document.getElementById('tk-p').value,done:false,addedBy:session.user.username});
   await famSet('tasks',tasks);
   closeModals(); renderTasks();
 }
@@ -1356,7 +1575,7 @@ async function loadDrivePhotos(){
   // Label local photos section if there are any
   var localPhotos = await famGet('photos') || [];
   if(localPhotos.length){
-    localLbl.textContent = '📲 Uploaded to FamilyHub ('+localPhotos.length+' photos)';
+    localLbl.textContent = '📲 Uploaded to ReynoldsHub ('+localPhotos.length+' photos)';
     localLbl.style.display = 'block';
   } else {
     localLbl.style.display = 'none';
@@ -1647,6 +1866,7 @@ async function renderAdmin(){
   var pending = await stGet('pending:signups') || [];
   var cfg = await getDriveConfig();
   // Chef AI — status shown via Test button, nothing to load here
+  renderMembers();
   // Populate Drive settings
   if(document.getElementById('admin-drive-key')){
     document.getElementById('admin-drive-key').value = cfg.apiKey||'';
