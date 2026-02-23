@@ -304,7 +304,18 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 /* ── UTILS ── */
 .section-lbl{font-size:.72rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.08em;padding:.75rem 0 .25rem;margin-top:.25rem;}
 
-/* ── WORKOUT ── */
+/* ── CONTACTS ── */
+.ct-card{background:var(--white);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:.625rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:.875rem;}
+.ct-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.ct-info{flex:1;min-width:0;}
+.ct-name{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ct-role{font-size:.75rem;color:var(--ink-m);margin-top:1px;}
+.ct-actions{display:flex;gap:.375rem;align-items:center;flex-shrink:0;}
+.ct-call{background:var(--palm-ll);color:var(--palm);border:none;border-radius:var(--rs);padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.75rem;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.ct-group-hdr{font-size:.72rem;font-weight:800;color:var(--ink-l);text-transform:uppercase;letter-spacing:.07em;padding:.625rem 0 .375rem;margin-top:.25rem;}
+
+/* ── CALENDAR HERO ── */
+
 .wo-card{background:var(--white);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:.75rem;box-shadow:var(--shadow);display:flex;align-items:flex-start;gap:.875rem;}
 .wo-icon{font-size:1.5rem;flex-shrink:0;margin-top:2px;}
 .wo-info{flex:1;}
@@ -422,6 +433,17 @@ pointer-events:none;z-index:0;}
   <div class="content">
     <!-- CALENDAR -->
     <div class="sec on" id="sec-cal">
+      <!-- Today Hero strip -->
+      <div id="cal-hero" style="background:linear-gradient(135deg,#0D4F6E,#1A6B8A,#2E9CBF);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:.875rem;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+        <div>
+          <div id="cal-hero-date" style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:900;line-height:1.1;"></div>
+          <div id="cal-hero-sub" style="font-size:.8rem;opacity:.8;margin-top:.2rem;"></div>
+        </div>
+        <div id="cal-weather-wrap" style="text-align:right;">
+          <div id="cal-weather-temp" style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;line-height:1;"></div>
+          <div id="cal-weather-desc" style="font-size:.72rem;opacity:.8;margin-top:1px;"></div>
+        </div>
+      </div>
       <div class="card">
         <div class="cal-nav">
           <button class="cnav" onclick="cm(-1)">&#8249;</button>
@@ -432,21 +454,10 @@ pointer-events:none;z-index:0;}
       </div>
       <div class="card">
         <div class="card-row">
-          <div class="card-title" id="ev-date-lbl">Today</div>
+          <div class="card-title" id="ev-date-lbl">🗓 Upcoming Events</div>
           <button class="btn-sm btn-sm-forest" onclick="openModal('ev')">+ Add Event</button>
         </div>
         <div id="ev-list"></div>
-      </div>
-    </div>
-
-    <!-- TASKS -->
-    <div class="sec" id="sec-tasks">
-      <div class="card">
-        <div class="card-row">
-          <div class="card-title">📋 Family Tasks</div>
-          <button class="btn-sm btn-sm-forest" onclick="openModal('task')">+ Add</button>
-        </div>
-        <div id="task-list"></div>
       </div>
     </div>
 
@@ -521,6 +532,25 @@ pointer-events:none;z-index:0;}
       <div id="notes-list" style="margin-top:.75rem"></div>
     </div>
 
+    <!-- CONTACTS -->
+    <div class="sec" id="sec-contacts">
+      <div class="card-row">
+        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">📞 Family Contacts</div>
+        <button class="btn-sm btn-sm-forest" onclick="openModal('contact')">+ Add</button>
+      </div>
+      <!-- Quick emergency strip -->
+      <div style="background:var(--coral-l);border:2px solid var(--coral);border-radius:var(--r);padding:.875rem 1rem;margin-bottom:.875rem;display:flex;align-items:center;gap:.75rem;">
+        <span style="font-size:1.4rem;">🚨</span>
+        <div style="flex:1;">
+          <div style="font-weight:800;font-size:.85rem;color:var(--coral);">Emergency</div>
+          <div style="font-size:.78rem;color:var(--ink-m);margin-top:1px;">Police / Fire / Ambulance</div>
+        </div>
+        <a href="tel:911" style="background:var(--coral);color:#fff;border-radius:var(--rs);padding:.45rem .875rem;font-weight:800;font-size:.85rem;text-decoration:none;">📞 911</a>
+      </div>
+      <!-- Groups: Medical, School, Family, Other -->
+      <div id="contacts-list"></div>
+    </div>
+
     <!-- WORKOUT -->
     <div class="sec" id="sec-workout">
       <div class="card-row">
@@ -532,58 +562,6 @@ pointer-events:none;z-index:0;}
       </div>
       <div id="workout-member-tabs" style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.75rem 0;"></div>
       <div id="workout-list-area"></div>
-    </div>
-
-    <!-- BUDGET -->
-    <div class="sec" id="sec-budget">
-      <div class="card-row">
-        <div class="card-title" style="font-family:'Fraunces',serif;font-size:1.2rem">💰 Family Budget</div>
-        <button class="btn-sm btn-sm-forest" onclick="openModal('budget-tx')">+ Add</button>
-      </div>
-      <!-- Month selector + summary -->
-      <div class="card" style="margin-bottom:.875rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;">
-          <button class="cnav" onclick="budgetMonthNav(-1)">&#8249;</button>
-          <div id="budget-month-lbl" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;"></div>
-          <button class="cnav" onclick="budgetMonthNav(1)">&#8250;</button>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.625rem;text-align:center;">
-          <div style="background:var(--palm-ll);border-radius:var(--rs);padding:.75rem .5rem;">
-            <div style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--palm)" id="budget-income-total">$0</div>
-            <div style="font-size:.7rem;color:var(--palm);font-weight:700;text-transform:uppercase;margin-top:2px;">Income</div>
-          </div>
-          <div style="background:var(--coral-l);border-radius:var(--rs);padding:.75rem .5rem;">
-            <div style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--coral)" id="budget-expense-total">$0</div>
-            <div style="font-size:.7rem;color:var(--coral);font-weight:700;text-transform:uppercase;margin-top:2px;">Spent</div>
-          </div>
-          <div style="background:var(--ocean-ll);border-radius:var(--rs);padding:.75rem .5rem;">
-            <div style="font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900;color:var(--ocean)" id="budget-net-total">$0</div>
-            <div style="font-size:.7rem;color:var(--ocean);font-weight:700;text-transform:uppercase;margin-top:2px;">Left</div>
-          </div>
-        </div>
-        <!-- Monthly budget goal -->
-        <div style="margin-top:.875rem;display:flex;align-items:center;gap:.5rem;">
-          <span style="font-size:.78rem;font-weight:700;color:var(--ink-m);white-space:nowrap;">Monthly Budget Goal:</span>
-          <div style="display:flex;gap:.375rem;flex:1;align-items:center;">
-            <span style="font-weight:700;color:var(--ink-m);">$</span>
-            <input id="budget-goal-input" type="number" min="0" placeholder="e.g. 5000" style="flex:1;border:2px solid var(--sand-d);border-radius:var(--rs);padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;background:var(--sand);" onchange="saveBudgetGoal()">
-          </div>
-        </div>
-        <div class="pbar-wrap" style="margin-top:.5rem;">
-          <div class="pbar-fill" id="budget-pbar" style="width:0%;background:linear-gradient(90deg,var(--palm),var(--ocean-l));"></div>
-        </div>
-        <div style="font-size:.72rem;color:var(--ink-l);text-align:right;font-weight:600;" id="budget-pbar-lbl"></div>
-      </div>
-      <!-- Category breakdown -->
-      <div class="card" style="margin-bottom:.875rem;">
-        <div class="card-title" style="margin-bottom:.75rem;">📊 By Category</div>
-        <div id="budget-cats"></div>
-      </div>
-      <!-- Transaction list -->
-      <div class="card">
-        <div class="card-title" style="margin-bottom:.75rem;">📋 Transactions</div>
-        <div id="budget-tx-list"></div>
-      </div>
     </div>
 
     <!-- ADMIN -->
@@ -621,18 +599,6 @@ pointer-events:none;z-index:0;}
         <div id="admin-anthropic-status" style="font-size:.78rem;font-weight:600;padding:.25rem 0;"></div>
         <button onclick="testAnthropicKey()" style="margin-top:.5rem;background:var(--sand);border:2px solid var(--sand-d);border-radius:var(--rs);padding:.45rem .875rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--ink-m);">🔌 Test Connection</button>
       </div>
-      <div class="card">
-        <div class="card-row">
-          <div class="card-title">🔑 Google Drive Settings</div>
-        </div>
-        <div class="fld">
-          <label>Drive API Key</label>
-          <div style="display:flex;gap:.5rem;">
-            <input class="fi" id="admin-drive-key" placeholder="AIzaSy…" style="font-size:.85rem;">
-            <button onclick="saveDriveApiKey()" style="background:var(--ocean);color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap;">Save</button>
-          </div>
-          <div style="font-size:.73rem;color:var(--ink-l);margin-top:.375rem;">Get a free API key at <strong>console.cloud.google.com</strong> → APIs → Drive API → Credentials → API Key. Restrict it to the Drive API only.</div>
-        </div>
         <div class="fld">
           <label>Current Drive Folder ID</label>
           <div id="admin-drive-folder-display" style="font-size:.85rem;color:var(--ink-m);padding:.5rem 0;font-weight:600;">None set</div>
@@ -650,13 +616,12 @@ pointer-events:none;z-index:0;}
 
   <nav class="bottomnav" id="bottomnav">
     <button class="nb" id="nb-cal" onclick="goSec('cal',this)"><span class="ni">📅</span>Calendar</button>
-    <button class="nb" id="nb-tasks" onclick="goSec('tasks',this)"><span class="ni">✅</span>Tasks</button>
     <button class="nb" id="nb-meals" onclick="goSec('meals',this)"><span class="ni">🍽️</span>Meals</button>
-    <button class="nb" id="nb-helper" onclick="goSec('helper',this)"><span class="ni">🤖</span>Helper AI</button>
     <button class="nb" id="nb-shop" onclick="goSec('shop',this)"><span class="ni">🛒</span>Shopping</button>
     <button class="nb" id="nb-workout" onclick="goSec('workout',this)"><span class="ni">💪</span>Workouts</button>
-    <button class="nb" id="nb-budget" onclick="goSec('budget',this)"><span class="ni">💰</span>Budget</button>
+    <button class="nb" id="nb-contacts" onclick="goSec('contacts',this)"><span class="ni">📞</span>Contacts</button>
     <button class="nb" id="nb-notes" onclick="goSec('notes',this)"><span class="ni">📝</span>Board</button>
+    <button class="nb" id="nb-helper" onclick="goSec('helper',this)"><span class="ni">🤖</span>Helper AI</button>
     <button class="nb" id="nb-admin" onclick="goSec('admin',this)" style="display:none">
       <div class="nb-wrap"><span class="ni">⚙️</span><span class="nb-badge" id="admin-badge" style="display:none"></span></div>Admin
     </button>
@@ -790,21 +755,6 @@ pointer-events:none;z-index:0;}
   <button class="sbtn" onclick="saveEventEdit()">Save Changes ✅</button>
 </div></div>
 
-<!-- Task -->
-<div class="ov" id="ov-task"><div class="modal">
-  <div class="mhandle"></div><div class="mtitle">✅ Add Task</div>
-  <div class="fld"><label>Task</label><input class="fi" id="tk-n" placeholder="Clean room, Homework…"></div>
-  <div class="fld"><label>Assigned to</label><select class="fi" id="tk-w"><option value="">Everyone</option></select></div>
-  <div class="fld"><label>Priority</label>
-    <div class="chips">
-      <div class="chip on" data-v="h" onclick="pickChip(this,'tk-p')">🔴 High</div>
-      <div class="chip" data-v="m" onclick="pickChip(this,'tk-p')">🟡 Medium</div>
-      <div class="chip" data-v="l" onclick="pickChip(this,'tk-p')">🟢 Low</div>
-    </div>
-    <input type="hidden" id="tk-p" value="h">
-  </div>
-  <button class="sbtn" onclick="addTask()">Add Task ✅</button>
-</div></div>
 
 <!-- Meal -->
 <div class="ov" id="ov-meal"><div class="modal">
@@ -898,6 +848,28 @@ pointer-events:none;z-index:0;}
   <button class="sbtn" onclick="savePhoto()">Add to Memory Wall 📸</button>
 </div></div>
 
+<!-- Contact -->
+<div class="ov" id="ov-contact"><div class="modal">
+  <div class="mhandle"></div><div class="mtitle" id="contact-modal-title">📞 Add Contact</div>
+  <input type="hidden" id="ct-id">
+  <div class="fld"><label>Name / Organization</label><input class="fi" id="ct-name" placeholder="Dr. Smith, Minnetonka School, Grandma…"></div>
+  <div class="fld"><label>Category</label>
+    <div class="chips" style="flex-wrap:wrap;">
+      <div class="chip on" data-v="🏥 Medical" onclick="pickChip(this,'ct-cat')">🏥 Medical</div>
+      <div class="chip" data-v="🏫 School" onclick="pickChip(this,'ct-cat')">🏫 School</div>
+      <div class="chip" data-v="👨‍👩‍👧 Family" onclick="pickChip(this,'ct-cat')">👨‍👩‍👧 Family</div>
+      <div class="chip" data-v="⚽ Sports" onclick="pickChip(this,'ct-cat')">⚽ Sports</div>
+      <div class="chip" data-v="🔧 Services" onclick="pickChip(this,'ct-cat')">🔧 Services</div>
+      <div class="chip" data-v="📦 Other" onclick="pickChip(this,'ct-cat')">📦 Other</div>
+    </div>
+    <input type="hidden" id="ct-cat" value="🏥 Medical">
+  </div>
+  <div class="fld"><label>Phone</label><input class="fi" id="ct-phone" type="tel" placeholder="(555) 123-4567"></div>
+  <div class="fld"><label>Role / Notes</label><input class="fi" id="ct-role" placeholder="Pediatrician, Emma's homeroom, Grandpa's cell…"></div>
+  <div class="fld"><label>Address <span style="font-weight:400;opacity:.6">(optional)</span></label><input class="fi" id="ct-addr" placeholder="123 Main St, Minneapolis MN"></div>
+  <button class="sbtn" onclick="saveContact()">Save Contact 📞</button>
+</div></div>
+
 <!-- Add Family Member -->
 <div class="ov" id="ov-member"><div class="modal">
   <div class="mhandle"></div><div class="mtitle">👤 Add Family Member</div>
@@ -950,37 +922,6 @@ pointer-events:none;z-index:0;}
   <button class="sbtn" onclick="saveWorkout()">Save Workout 💪</button>
 </div></div>
 
-<!-- Budget Transaction -->
-<div class="ov" id="ov-budget-tx"><div class="modal">
-  <div class="mhandle"></div><div class="mtitle">💰 Add Transaction</div>
-  <div class="fld"><label>Type</label>
-    <div class="chips">
-      <div class="chip on" data-v="expense" onclick="pickChip(this,'btx-type')">💸 Expense</div>
-      <div class="chip" data-v="income" onclick="pickChip(this,'btx-type')">💵 Income</div>
-    </div>
-    <input type="hidden" id="btx-type" value="expense">
-  </div>
-  <div class="fld"><label>Description</label><input class="fi" id="btx-desc" placeholder="Groceries, Salary, Rent…"></div>
-  <div class="fr">
-    <div class="fld"><label>Amount ($)</label><input class="fi" id="btx-amt" type="number" min="0" step="0.01" placeholder="0.00"></div>
-    <div class="fld"><label>Date</label><input class="fi" id="btx-date" type="date"></div>
-  </div>
-  <div class="fld"><label>Category</label>
-    <div class="chips" style="flex-wrap:wrap;">
-      <div class="chip on" data-v="🛒 Groceries" onclick="pickChip(this,'btx-cat')">🛒 Groceries</div>
-      <div class="chip" data-v="🏠 Housing" onclick="pickChip(this,'btx-cat')">🏠 Housing</div>
-      <div class="chip" data-v="🚗 Transport" onclick="pickChip(this,'btx-cat')">🚗 Transport</div>
-      <div class="chip" data-v="🍽️ Dining" onclick="pickChip(this,'btx-cat')">🍽️ Dining</div>
-      <div class="chip" data-v="⚕️ Health" onclick="pickChip(this,'btx-cat')">⚕️ Health</div>
-      <div class="chip" data-v="📚 Education" onclick="pickChip(this,'btx-cat')">📚 Education</div>
-      <div class="chip" data-v="🎉 Fun" onclick="pickChip(this,'btx-cat')">🎉 Fun</div>
-      <div class="chip" data-v="💼 Income" onclick="pickChip(this,'btx-cat')">💼 Income</div>
-      <div class="chip" data-v="📦 Other" onclick="pickChip(this,'btx-cat')">📦 Other</div>
-    </div>
-    <input type="hidden" id="btx-cat" value="🛒 Groceries">
-  </div>
-  <button class="sbtn" onclick="addBudgetTx()">Add Transaction 💰</button>
-</div></div>
 
 <!-- Create User (admin) -->
 <div class="ov" id="ov-newuser"><div class="modal">
@@ -1147,6 +1088,13 @@ async function seedIfNeeded() {
   await stSet('fam:reynolds:shopping', demoShop);
   await stSet('fam:reynolds:notes', demoNotes);
   await stSet('fam:reynolds:photos', []);
+  var demoContacts = [
+    {id:1, name:'Dr. Sarah Kim', cat:'🏥 Medical', phone:'(952) 555-0191', role:'Family Pediatrician', addr:'345 Lake St, Minneapolis MN'},
+    {id:2, name:'Minnetonka Elementary', cat:'🏫 School', phone:'(952) 555-0140', role:'Main office', addr:''},
+    {id:3, name:'Grandpa Bill', cat:'👨‍👩‍👧 Family', phone:'(612) 555-0177', role:"Shawn's Dad", addr:''},
+    {id:4, name:'Grandma Carol', cat:'👨‍👩‍👧 Family', phone:'(612) 555-0133', role:"Shawn's Mom", addr:''},
+  ];
+  await stSet('fam:reynolds:contacts', demoContacts);
   await stSet('fam:reynolds:members', [
     {id:1, name:'Shawn',  color:'#4C89C8'},
     {id:2, name:'Emma',   color:'#C75B5B'},
@@ -1254,15 +1202,15 @@ async function launchApp() {
 
   renderCal();
   await renderEvents();
-  await renderTasks();
   await renderMeals();
   await renderShop();
   await migrateShoppingToImperial();
   await renderShop(); // re-render after migration
   await renderNotes();
   await renderWorkouts();
-  renderBudget();
+  await renderContacts();
   initHelper();
+  initCalHero();
   // Activate calendar nav
   document.getElementById('nb-cal').classList.add('on');
 }
@@ -1277,8 +1225,8 @@ function goSec(name, btn) {
   if(secEl) secEl.classList.add('on');
   if(btn) btn.classList.add('on');
   if(name==='admin') renderAdmin();
-  if(name==='budget') renderBudget();
   if(name==='workout') renderWorkouts();
+  if(name==='contacts') renderContacts();
 }
 function toggleDrop(){document.getElementById('user-drop').classList.toggle('on');}
 document.addEventListener('click',function(e){
@@ -1425,12 +1373,32 @@ function renderCal() {
   }
   var rem=(fd+dim)%7===0?0:7-((fd+dim)%7);
   for(var d=1;d<=rem;d++) g.innerHTML+='<div class="cd dim">'+d+'</div>';
-  // Load events to mark dots
+  // Load events → colored member pip dots
   famGet('events').then(function(evs){
     if(!evs) return;
+    var byDate = {};
     evs.forEach(function(ev){
-      var el = g.querySelector('[data-ds="'+ev.date+'"]');
-      if(el) el.classList.add('hev');
+      if(!byDate[ev.date]) byDate[ev.date] = [];
+      byDate[ev.date].push(ev);
+    });
+    Object.keys(byDate).forEach(function(ds){
+      var cell = g.querySelector('[data-ds="'+ds+'"]');
+      if(!cell) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'cal-dots';
+      var seen = new Set();
+      byDate[ds].forEach(function(ev){
+        var color = ev.colHex || dotColorMap[ev.col] || '#8AA5B5';
+        if(!seen.has(color)){
+          seen.add(color);
+          var pip = document.createElement('span');
+          pip.className = 'cal-dot-pip';
+          pip.style.background = color;
+          wrap.appendChild(pip);
+        }
+      });
+      cell.style.position = 'relative';
+      cell.appendChild(wrap);
     });
   });
 }
@@ -2489,6 +2457,170 @@ function toggleChip(el){el.classList.toggle('on');}
 // BOOT
 // ══════════════════════════════════════
 // ══════════════════════════════════════
+// ══════════════════════════════════════
+// CONTACTS
+// ══════════════════════════════════════
+async function renderContacts(){
+  var contacts = await famGet('contacts') || [];
+  var list = document.getElementById('contacts-list');
+  if(!list) return;
+  if(!contacts.length){
+    list.innerHTML='<div class="empty"><span class="empty-ico">📞</span>No contacts yet — add doctors, school, family numbers!</div>';
+    return;
+  }
+  var groups = {};
+  contacts.forEach(function(c){
+    var g = c.cat||'📦 Other';
+    if(!groups[g]) groups[g]=[];
+    groups[g].push(c);
+  });
+  var catOrder = ['🏥 Medical','🏫 School','👨‍👩‍👧 Family','⚽ Sports','🔧 Services','📦 Other'];
+  var allCats = catOrder.filter(function(c){ return groups[c]; })
+    .concat(Object.keys(groups).filter(function(c){ return !catOrder.includes(c); }));
+  list.innerHTML = allCats.map(function(cat){
+    return '<div class="ct-group-hdr">'+cat+'</div>'
+      + groups[cat].map(function(c){
+        var callBtn = c.phone
+          ? '<a class="ct-call" href="tel:'+c.phone.replace(/\D/g,'')+'">📞 Call</a>'
+          : '';
+        return '<div class="ct-card">'
+          +'<div class="ct-av" style="background:var(--ocean-ll)">'+cat.split(' ')[0]+'</div>'
+          +'<div class="ct-info">'
+          +'<div class="ct-name">'+c.name+'</div>'
+          +'<div class="ct-role">'+(c.role||'')+(c.phone?' &nbsp;·&nbsp; '+c.phone:'')+(c.addr?' &nbsp;·&nbsp; '+c.addr:'')+'</div>'
+          +'</div>'
+          +'<div class="ct-actions">'+callBtn
+          +'<button class="xbtn" style="opacity:.5;font-size:.8rem" onclick="editContact('+c.id+')">✏️</button>'
+          +'<button class="xbtn" onclick="delContact('+c.id+')">✕</button>'
+          +'</div>'
+          +'</div>';
+      }).join('');
+  }).join('');
+}
+
+async function saveContact(){
+  var name = document.getElementById('ct-name').value.trim();
+  if(!name){alert('Enter a name');return;}
+  var contacts = await famGet('contacts') || [];
+  var existingId = document.getElementById('ct-id').value;
+  var entry = {
+    id: existingId ? parseInt(existingId) : Date.now(),
+    name: name,
+    cat: document.getElementById('ct-cat').value,
+    phone: document.getElementById('ct-phone').value.trim(),
+    role: document.getElementById('ct-role').value.trim(),
+    addr: document.getElementById('ct-addr').value.trim(),
+    addedBy: session.user.username
+  };
+  if(existingId){
+    var idx = contacts.findIndex(function(c){ return c.id===parseInt(existingId); });
+    if(idx>=0) contacts[idx]=entry; else contacts.push(entry);
+  } else { contacts.push(entry); }
+  await famSet('contacts', contacts);
+  closeModals();
+  renderContacts();
+}
+
+async function editContact(id){
+  var contacts = await famGet('contacts') || [];
+  var c = contacts.find(function(x){ return x.id===id; });
+  if(!c) return;
+  document.getElementById('contact-modal-title').textContent = '✏️ Edit Contact';
+  document.getElementById('ct-id').value = c.id;
+  document.getElementById('ct-name').value = c.name||'';
+  document.getElementById('ct-phone').value = c.phone||'';
+  document.getElementById('ct-role').value = c.role||'';
+  document.getElementById('ct-addr').value = c.addr||'';
+  document.getElementById('ct-cat').value = c.cat||'🏥 Medical';
+  document.querySelectorAll('#ov-contact .chip').forEach(function(chip){
+    chip.classList.toggle('on', chip.getAttribute('data-v')===(c.cat||'🏥 Medical'));
+  });
+  document.getElementById('ov-contact').classList.add('on');
+}
+
+async function delContact(id){
+  var contacts = await famGet('contacts') || [];
+  await famSet('contacts', contacts.filter(function(c){ return c.id!==id; }));
+  renderContacts();
+}
+
+// ══════════════════════════════════════
+// WEATHER + CALENDAR HERO
+// ══════════════════════════════════════
+function initCalHero(){
+  var heroDate = document.getElementById('cal-hero-date');
+  var heroSub  = document.getElementById('cal-hero-sub');
+  if(!heroDate) return;
+  var now = new Date();
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  heroDate.textContent = days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate();
+  // Greeting by time
+  var h = now.getHours();
+  var greet = h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : 'Good evening';
+  heroSub.textContent = greet+', Reynolds family! 🌴';
+  // Fetch weather (Open-Meteo — free, no API key)
+  fetchWeather();
+}
+
+function fetchWeather(){
+  // Default: Bloomington MN (55431) — lat/lon
+  var lat = 44.8408, lon = -93.3771;
+  // Try to get user location
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(pos){
+      doWeatherFetch(pos.coords.latitude, pos.coords.longitude);
+    }, function(){ doWeatherFetch(lat, lon); }, {timeout:5000});
+  } else { doWeatherFetch(lat, lon); }
+}
+
+function doWeatherFetch(lat, lon){
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon
+    +'&current=temperature_2m,weather_code,apparent_temperature&temperature_unit=fahrenheit&wind_speed_unit=mph&forecast_days=1';
+  fetch(url).then(function(r){ return r.json(); }).then(function(d){
+    var cur = d.current;
+    var temp = Math.round(cur.temperature_2m);
+    var feels = Math.round(cur.apparent_temperature);
+    var code = cur.weather_code;
+    var ico = weatherCodeToIcon(code);
+    var desc = weatherCodeToDesc(code);
+    var tempEl = document.getElementById('cal-weather-temp');
+    var descEl = document.getElementById('cal-weather-desc');
+    if(tempEl) tempEl.textContent = ico+' '+temp+'°F';
+    if(descEl) descEl.textContent = desc+' · feels '+feels+'°';
+  }).catch(function(){
+    // silently fail — weather is a nice-to-have
+  });
+}
+
+function weatherCodeToIcon(c){
+  if(c===0) return '☀️';
+  if(c<=2) return '⛅';
+  if(c<=3) return '☁️';
+  if(c<=48) return '🌫️';
+  if(c<=57) return '🌧️';
+  if(c<=67) return '🌨️';
+  if(c<=77) return '❄️';
+  if(c<=82) return '🌦️';
+  if(c<=86) return '🌨️';
+  if(c<=99) return '⛈️';
+  return '🌡️';
+}
+function weatherCodeToDesc(c){
+  if(c===0) return 'Clear sky';
+  if(c<=2) return 'Partly cloudy';
+  if(c<=3) return 'Overcast';
+  if(c<=48) return 'Fog';
+  if(c<=57) return 'Drizzle';
+  if(c<=67) return 'Rain';
+  if(c<=77) return 'Snow';
+  if(c<=82) return 'Rain showers';
+  if(c<=86) return 'Snow showers';
+  if(c<=99) return 'Thunderstorm';
+  return 'Unknown';
+}
+
+// ══════════════════════════════════════
 // WORKOUTS
 // ══════════════════════════════════════
 var selWorkoutMember = ''; // '' = Everyone / All
@@ -2629,7 +2761,6 @@ function budgetMonthNav(dir){
   budgetViewM += dir;
   if(budgetViewM>11){budgetViewM=0;budgetViewY++;}
   else if(budgetViewM<0){budgetViewM=11;budgetViewY--;}
-  renderBudget();
 }
 
 async function renderBudget(){
@@ -2708,7 +2839,6 @@ async function renderBudget(){
 async function saveBudgetGoal(){
   var val = parseFloat(document.getElementById('budget-goal-input').value)||0;
   await famSet('budget:goal', {monthly:val});
-  renderBudget();
 }
 
 async function addBudgetTx(){
@@ -2727,14 +2857,12 @@ async function addBudgetTx(){
   });
   await famSet(txKey, txs);
   closeModals();
-  renderBudget();
 }
 
 async function delBudgetTx(id){
   var txKey = 'budget:'+budgetViewY+':'+pad(budgetViewM+1);
   var txs = await famGet(txKey) || [];
   await famSet(txKey, txs.filter(function(t){ return t.id!==id; }));
-  renderBudget();
 }
 
 window.addEventListener('load', function(){
