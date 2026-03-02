@@ -38,7 +38,7 @@ h1,h2,h3,.serif{font-family:'Fraunces',serif;}
 .screen.on{display:flex;}
 
 /* ── LOGIN / SIGNUP ── */
-#s-login{align-items:center;justify-content:center;padding:2rem;background:linear-gradient(160deg,#0D4F6E 0%,#1A6B8A 40%,#2E9CBF 70%,#87CEEB 100%);position:relative;overflow:hidden;}
+#s-login{align-items:center;justify-content:center;flex-direction:column;padding:2rem;min-height:100vh;width:100%;background:linear-gradient(160deg,#0D4F6E 0%,#1A6B8A 40%,#2E9CBF 70%,#87CEEB 100%);overflow-y:auto;}
 #s-login::before{content:'🌴';position:absolute;bottom:0;left:2%;font-size:8rem;line-height:1;opacity:.45;transform:rotate(-8deg);pointer-events:none;}
 #s-login::after{content:'🌴';position:absolute;bottom:0;right:3%;font-size:6.5rem;line-height:1;opacity:.4;transform:rotate(10deg) scaleX(-1);pointer-events:none;}
 /* wave strip at bottom of login */
@@ -354,8 +354,6 @@ body::before{content:'';position:fixed;inset:0;background:
 pointer-events:none;z-index:0;}
 .content{position:relative;z-index:1;}
 /* Quick-access login bar */
-#dev-bar{position:fixed;bottom:0;left:0;right:0;background:#0D3040;color:#fff;font-size:.75rem;font-weight:700;text-align:center;padding:.4rem;z-index:9999;cursor:pointer;letter-spacing:.04em;}
-#dev-bar:hover{background:#1A6B8A;}
 </style>
 </head>
 <body>
@@ -491,7 +489,7 @@ pointer-events:none;z-index:0;}
       <div class="chatbox">
         <div class="msgs" id="msgs"></div>
         <div class="chat-input-row">
-          <input class="cinput" id="cinput" placeholder="e.g. 2 kids, love Italian, no shellfish…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendMsg()}">
+          <input class="cinput" id="cinput" placeholder="e.g. plan meals and workouts for a family of 4…" onkeydown="if(event.key==='Enter'){event.preventDefault();sendMsg()}">
           <button class="csend" id="csend" onclick="sendMsg()">&#10148;</button>
         </div>
       </div>
@@ -506,6 +504,16 @@ pointer-events:none;z-index:0;}
             <div class="ai-shop-t">🛒 Shopping list will include</div>
             <div class="ai-tags" id="ai-shop-tags"></div>
           </div>
+        </div>
+      </div>
+      <!-- Workout plan card -->
+      <div class="ai-plan-card" id="ai-workout-card">
+        <div class="ai-plan-hdr" style="background:linear-gradient(135deg,#1B4A2E,#2E7D52);">
+          <div class="ai-plan-hdr-t">💪 Your AI Workout Plan</div>
+          <button class="apply-btn" onclick="applyWorkoutPlan()">✅ Save to Workouts</button>
+        </div>
+        <div class="ai-plan-body">
+          <div id="ai-workout-prev"></div>
         </div>
       </div>
     </div>
@@ -964,6 +972,7 @@ var selColEdit = 'dot-or'; // for edit event modal
 var selMemberColor = '#E9854C';
 var chatHist = [];
 var pendingPlan = null;
+var pendingWorkoutPlan = null;
 var aiTyping = false;
 var pendingPhotoData = null; // base64 data URL waiting for caption
 
@@ -1163,9 +1172,7 @@ async function doSignupRequest() {
 async function doLogout() {
   session.user = null;
   document.getElementById('s-app').classList.remove('on');
-  document.getElementById('s-app').style.display = 'none';
   document.getElementById('s-login').classList.add('on');
-  document.getElementById('s-login').style.display = '';
   document.getElementById('l-user').value='';
   document.getElementById('l-pass').value='';
   document.getElementById('user-drop').classList.remove('on');
@@ -1177,11 +1184,7 @@ async function doLogout() {
 async function launchApp() {
   var u = session.user;
   document.getElementById('s-login').classList.remove('on');
-  document.getElementById('s-login').style.display = 'none';
-  var app = document.getElementById('s-app');
-  app.style.display = 'flex';
-  app.classList.add('on');
-  document.dispatchEvent(new Event('appLaunched'));
+  document.getElementById('s-app').classList.add('on');
 
   document.getElementById('user-av').textContent = u.displayName[0].toUpperCase();
   document.getElementById('user-display').textContent = u.displayName.split(' ')[0];
@@ -2292,7 +2295,7 @@ async function deleteUser(username) {
 function initHelper(){
   chatHist=[];
   document.getElementById('msgs').innerHTML='';
-  aiMsg("👋 Hi! I'm Helper AI — your family meal planner!\n\nTell me about your family:\n• How many people and kids' ages?\n• Favourite foods or things to avoid?\n• Any dietary needs?\n• How much time to cook on weeknights?\n\nOr tap a quick prompt — I'll plan the full week and auto-fill your shopping list! 🛒");
+  aiMsg("👋 Hi! I'm **Helper AI** — I can help with:\n\n🍽️ **Meal plans** — full week of dinners, lunches, breakfasts + auto-fill your shopping list\n💪 **Workout plans** — weekly schedules for each family member\n🌴 **Anything else** — routines, tips, ideas\n\nTell me about your family (ages, goals, preferences) or just tap a quick chip below!");
 }
 function aiMsg(text){
   var msgs=document.getElementById('msgs');
@@ -2327,13 +2330,49 @@ async function sendMsg(){
   userMsg(text);
   chatHist.push({role:'user',content:text});
   aiTyping=true;document.getElementById('csend').disabled=true;showTyping();
+  // Build context: current meals and workouts
   var meals=await famGet('meals')||{};
+  var workouts=await famGet('workouts')||[];
   var existingMeals=DAYS.map(function(d){
     var m=meals[d]||{};
     var e=SLOTS.filter(function(s){return m[s];}).map(function(s){return s+': '+m[s];});
     return e.length?d+': '+e.join(', '):null;
   }).filter(Boolean).join('\n');
-  var sys='You are Helper AI, a friendly family meal planner. Help busy parents plan meals and build shopping lists. IMPORTANT: Always use US imperial measurements (lbs, oz, cups, gallons, quarts, pints, fl oz, tablespoons, teaspoons) — never metric.\n\nWhen you have enough info or are asked for a plan, generate one and include it at the END of your message in this EXACT format:\n\n<MEAL_PLAN>\n{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},"Wednesday":{"breakfast":"","lunch":"Tomato soup","dinner":"Grilled Salmon","snack":""},"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},"Sunday":{"breakfast":"Eggs on toast","lunch":"","dinner":"Roast Chicken","snack":""}},"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Salmon fillets","qty":"4 pieces","cat":"🥩 Meat & Fish"},{"name":"Ground beef","qty":"1 lb","cat":"🥩 Meat & Fish"},{"name":"Spaghetti","qty":"1 lb box","cat":"🥫 Pantry"},{"name":"Tomatoes","qty":"6","cat":"🥦 Produce"},{"name":"Eggs","qty":"1 dozen","cat":"🧀 Dairy"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n</MEAL_PLAN>\n\nCategories: 🥦 Produce, 🥩 Meat & Fish, 🧀 Dairy, 🥖 Bakery, 🥫 Pantry, 🧊 Frozen, 🧴 Household, 🍭 Snacks\nLeave slots as "" if not needed. Only include main ingredients for a family of 4, skip staples like salt/oil/pepper.\n\n'+(existingMeals?'Current meal plan:\n'+existingMeals:'No meals planned yet.');
+  var existingWorkouts=workouts.length
+    ? workouts.map(function(w){return (w.who||'Everyone')+': '+w.name+' ('+w.type+', '+(w.tag||'unscheduled')+')';}).join('\n')
+    : 'None yet';
+
+  var sys = 'You are Helper AI, the Reynolds family assistant. You help with:\n'
+    +'• Meal planning — weekly dinners, lunches, breakfasts, shopping lists\n'
+    +'• Workout planning — family fitness, adult routines, kids activities\n'
+    +'• General family tips and scheduling\n\n'
+    +'Always use US imperial measurements. Never metric.\n\n'
+    +'=== HOW TO RESPOND ===\n'
+    +'For meal plan requests: give a friendly response AND append a <MEAL_PLAN> block (JSON).\n'
+    +'For workout plan requests: give a friendly response AND append a <WORKOUT_PLAN> block (JSON array).\n'
+    +'You can do BOTH in one reply if asked.\n\n'
+    +'=== MEAL_PLAN FORMAT (append at end when planning meals) ===\n'
+    +'<MEAL_PLAN>\n'
+    +'{"meals":{"Monday":{"breakfast":"","lunch":"","dinner":"Spaghetti Bolognese","snack":""},'
+    +'"Tuesday":{"breakfast":"","lunch":"","dinner":"Chicken Stir Fry","snack":"Apple slices"},'
+    +'"Wednesday":{"breakfast":"","lunch":"","dinner":"Grilled Salmon","snack":""},'
+    +'"Thursday":{"breakfast":"","lunch":"","dinner":"Homemade Pizza","snack":""},'
+    +'"Friday":{"breakfast":"","lunch":"","dinner":"Fish Tacos","snack":""},'
+    +'"Saturday":{"breakfast":"Pancakes","lunch":"","dinner":"BBQ Burgers","snack":""},'
+    +'"Sunday":{"breakfast":"","lunch":"","dinner":"Roast Chicken","snack":""}},'
+    +'"shopping":[{"name":"Chicken breast","qty":"2 lbs","cat":"🥩 Meat & Fish"},{"name":"Milk","qty":"1 gallon","cat":"🧀 Dairy"}]}\n'
+    +'</MEAL_PLAN>\n'
+    +'Shopping categories: 🥦 Produce 🥩 Meat & Fish 🧀 Dairy 🥖 Bakery 🥫 Pantry 🧊 Frozen 🧴 Household 🍭 Snacks\n\n'
+    +'=== WORKOUT_PLAN FORMAT (append at end when planning workouts) ===\n'
+    +'<WORKOUT_PLAN>\n'
+    +'[{"name":"Morning Run","who":"Shawn","type":"cardio","tag":"Mon/Wed/Fri","dur":"30","notes":"Easy 3 miles"},'
+    +'{"name":"Strength Training","who":"Shawn","type":"strength","tag":"Tue/Thu","dur":"45","notes":"Bench, squats, rows 3x10"},'
+    +'{"name":"Family Bike Ride","who":"Everyone","type":"cardio","tag":"Saturday","dur":"60","notes":"Trail at park"}]\n'
+    +'</WORKOUT_PLAN>\n'
+    +'Workout types: strength | cardio | flexibility | sports | custom\n\n'
+    +'=== CURRENT FAMILY STATE ===\n'
+    +'Meals this week:\n'+(existingMeals||'Nothing planned yet')+'\n\n'
+    +'Current workouts:\n'+existingWorkouts;
   // Call our server-side proxy (api/chat.js) — key never touches the browser
   fetch('/api/chat',{
     method:'POST',
@@ -2354,14 +2393,28 @@ async function sendMsg(){
       return;
     }
     chatHist.push({role:'assistant',content:full});
+    // Strip both plan blocks from display text
+    var display=full
+      .replace(/<MEAL_PLAN>[\s\S]*?<\/MEAL_PLAN>/,'')
+      .replace(/<WORKOUT_PLAN>[\s\S]*?<\/WORKOUT_PLAN>/,'')
+      .trim();
+    // Handle MEAL_PLAN
     var pm=full.match(/<MEAL_PLAN>([\s\S]*?)<\/MEAL_PLAN>/);
-    var display=full.replace(/<MEAL_PLAN>[\s\S]*?<\/MEAL_PLAN>/,'').trim();
     if(pm){
       try{
         var plan=JSON.parse(pm[1].trim());
         pendingPlan=plan;showAIPlanCard(plan);
         if(!display)display='Your meal plan is ready! 🎉 Review it below and tap **Apply** to save it all.';
-      }catch(e){console.error('plan parse',e);}
+      }catch(e){console.error('meal plan parse',e);}
+    }
+    // Handle WORKOUT_PLAN
+    var wp=full.match(/<WORKOUT_PLAN>([\s\S]*?)<\/WORKOUT_PLAN>/);
+    if(wp){
+      try{
+        var wplan=JSON.parse(wp[1].trim());
+        pendingWorkoutPlan=wplan;showAIWorkoutCard(wplan);
+        if(!display)display='Your workout plan is ready! 💪 Review it below and tap **Apply** to save it all.';
+      }catch(e){console.error('workout plan parse',e);}
     }
     if(display)aiMsg(display);
   }).catch(function(err){
@@ -2403,6 +2456,41 @@ async function applyPlan(){
   pendingPlan=null;
   aiMsg("✅ Done! Meal plan saved and ingredients added to your **Shopping List** (marked 🤖).\n\nTaking you to your shopping list…");
   setTimeout(function(){goSec('shop',document.getElementById('nb-shop'));},2000);
+}
+
+function showAIWorkoutCard(wplan){
+  var card = document.getElementById('ai-workout-card');
+  if(!card) return;
+  card.classList.add('on');
+  var typeIco={strength:'🏋️',cardio:'🏃',flexibility:'🧘',sports:'⚽',custom:'✏️'};
+  document.getElementById('ai-workout-prev').innerHTML = wplan.map(function(w){
+    return '<div class="ai-mr">'
+      +'<div class="ai-md" style="width:80px">'+(typeIco[w.type]||'💪')+' '+(w.who||'All')+'</div>'
+      +'<div class="ai-mv"><strong>'+w.name+'</strong>'
+      +(w.tag?' <span style="font-size:.7rem;color:var(--ink-l)">· '+w.tag+'</span>':'')
+      +(w.dur?' <span style="font-size:.7rem;color:var(--ink-l)">· '+w.dur+' min</span>':'')
+      +(w.notes?'<br><span style="font-size:.75rem;color:var(--ink-m)">'+w.notes+'</span>':'')
+      +'</div></div>';
+  }).join('');
+}
+
+async function applyWorkoutPlan(){
+  if(!pendingWorkoutPlan) return;
+  var workouts = await famGet('workouts') || [];
+  var baseTs = Date.now();
+  pendingWorkoutPlan.forEach(function(w, i){
+    workouts.push({
+      id: baseTs + i,
+      name: w.name, who: w.who||'Everyone', tag: w.tag||'',
+      type: w.type||'custom', dur: w.dur||'30', notes: w.notes||'',
+      addedBy: 'Helper AI', createdAt: baseTs
+    });
+  });
+  await famSet('workouts', workouts);
+  document.getElementById('ai-workout-card').classList.remove('on');
+  pendingWorkoutPlan = null;
+  aiMsg("💪 Done! "+workouts.length+" workouts saved to your **Workouts** tab!\n\nTaking you there now…");
+  setTimeout(function(){goSec('workout',document.getElementById('nb-workout'));},1800);
 }
 
 // ══════════════════════════════════════
@@ -2875,25 +2963,6 @@ window.addEventListener('load', function(){
   }
 });
 
-// ══════════════════════════════════════
-// LOCAL DEV BYPASS — remove before production
-// Click the bar at the bottom to instant-login as admin
-// ══════════════════════════════════════
-(function(){
-  var bar = document.createElement('div');
-  bar.id = 'dev-bar';
-  bar.title = 'Click to auto-login as sreynolds (dev mode)';
-  bar.textContent = '🏝️ DEV MODE — click to auto-login as sreynolds / password123';
-  bar.onclick = function(){
-    document.getElementById('l-user').value = 'sreynolds';
-    document.getElementById('l-pass').value = 'password123';
-    doLogin();
-    bar.textContent = '⏳ Logging in…';
-  };
-  document.body.appendChild(bar);
-  // Auto-dismiss bar if already logged in (user navigates back)
-  document.addEventListener('appLaunched', function(){ bar.style.display='none'; });
-})();
 </script>
 </body>
 </html>
