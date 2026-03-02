@@ -607,11 +607,6 @@ pointer-events:none;z-index:0;}
         <div id="admin-anthropic-status" style="font-size:.78rem;font-weight:600;padding:.25rem 0;"></div>
         <button onclick="testAnthropicKey()" style="margin-top:.5rem;background:var(--sand);border:2px solid var(--sand-d);border-radius:var(--rs);padding:.45rem .875rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--ink-m);">🔌 Test Connection</button>
       </div>
-        <div class="fld">
-          <label>Current Drive Folder ID</label>
-          <div id="admin-drive-folder-display" style="font-size:.85rem;color:var(--ink-m);padding:.5rem 0;font-weight:600;">None set</div>
-        </div>
-      </div>
       <div class="card">
         <div class="card-row">
           <div class="card-title">👥 All Users</div>
@@ -2183,7 +2178,6 @@ async function renderAdmin(){
   // Populate Drive settings
   if(document.getElementById('admin-drive-key')){
     document.getElementById('admin-drive-key').value = cfg.apiKey||'';
-    document.getElementById('admin-drive-folder-display').textContent = cfg.folderId||'None set';
   }
   // Count all users & families
   var users=[], families=new Set();
