@@ -446,7 +446,10 @@ pointer-events:none;z-index:0;}
         <div class="cal-nav">
           <button class="cnav" onclick="cm(-1)">&#8249;</button>
           <div class="cal-m" id="cal-lbl"></div>
-          <button class="cnav" onclick="cm(1)">&#8250;</button>
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <div id="gcal-cal-indicator" style="display:none;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:20px;background:#E8F0FE;color:#4285F4;">📅 Google</div>
+            <button class="cnav" onclick="cm(1)">&#8250;</button>
+          </div>
         </div>
         <div class="cgrid" id="cal-grid"></div>
       </div>
@@ -601,6 +604,28 @@ pointer-events:none;z-index:0;}
           <button class="btn-sm btn-sm-forest" onclick="openModal('member')">+ Add Member</button>
         </div>
         <div id="members-list"></div>
+      </div>
+      <!-- Google Calendar Card -->
+      <div class="card" id="gcal-admin-card">
+        <div class="card-row">
+          <div class="card-title">📅 Google Calendar</div>
+          <div id="gcal-status-badge" style="font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:20px;background:var(--sand-d);color:var(--ink-l);">Not connected</div>
+        </div>
+        <div id="gcal-connected-info" style="display:none;margin-bottom:.875rem;">
+          <div style="font-size:.85rem;color:var(--ink-m);line-height:1.6;" id="gcal-cal-name"></div>
+          <div style="display:flex;gap:.5rem;margin-top:.625rem;flex-wrap:wrap;">
+            <button onclick="gcalSync()" style="background:var(--forest);color:#fff;border:none;border-radius:var(--rs);padding:.45rem .875rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;">↻ Sync Now</button>
+            <button onclick="gcalDisconnect()" style="background:var(--rose-l);color:var(--rose);border:2px solid var(--rose);border-radius:var(--rs);padding:.45rem .875rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;">✕ Disconnect</button>
+          </div>
+        </div>
+        <div id="gcal-connect-area">
+          <div style="font-size:.82rem;color:var(--ink-m);line-height:1.6;margin-bottom:.875rem;">Connect your <strong>Our Lovely Life</strong> Google Calendar. Events will appear on the ReynoldsHub calendar (shown in blue) and new events you add here will sync back to Google.</div>
+          <button onclick="gcalConnect()" style="background:#4285F4;color:#fff;border:none;border-radius:var(--rs);padding:.6rem 1.25rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.875rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;">
+            <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4A90D9" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.37-.76-2.84-.76-4.59s.27-3.22.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Connect Google Calendar
+          </button>
+        </div>
+        <div id="gcal-sync-status" style="font-size:.75rem;color:var(--ink-l);margin-top:.5rem;min-height:1rem;"></div>
       </div>
       <div class="card">
         <div class="card-row">
@@ -1215,6 +1240,11 @@ async function launchApp() {
   await renderContacts();
   initHelper();
   initCalHero();
+  // Google Calendar — check connection and handle OAuth redirect
+  handleGcalRedirect();
+  gcalCheckStatus().then(function(connected){
+    if(connected) gcalSync();
+  });
   // Activate calendar nav
   document.getElementById('nb-cal').classList.add('on');
 }
@@ -1228,7 +1258,7 @@ function goSec(name, btn) {
   var secEl = document.getElementById('sec-'+name);
   if(secEl) secEl.classList.add('on');
   if(btn) btn.classList.add('on');
-  if(name==='admin') renderAdmin();
+  if(name==='admin') { renderAdmin(); gcalCheckStatus(); }
   if(name==='workout') renderWorkouts();
   if(name==='contacts') renderContacts();
 }
@@ -1378,7 +1408,7 @@ function renderCal() {
   var rem=(fd+dim)%7===0?0:7-((fd+dim)%7);
   for(var d=1;d<=rem;d++) g.innerHTML+='<div class="cd dim">'+d+'</div>';
   // Load events → colored member pip dots
-  famGet('events').then(function(evs){
+  getAllEvents().then(function(evs){
     if(!evs) return;
     var byDate = {};
     evs.forEach(function(ev){
@@ -1423,16 +1453,15 @@ function evDotHtml(e){
   return '<div class="ev-dot '+(e.col||'dot-or')+'"></div>';
 }
 async function renderEvents() {
-  var evs = await famGet('events') || [];
+  var evs = await getAllEvents();
   var list = document.getElementById('ev-list');
   var DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var todayDs = new Date().toISOString().split('T')[0];
-  // Next 8 upcoming events from today, sorted by date
+  // Next 12 upcoming events from today, sorted by date
   var upcoming = evs.filter(function(e){ return e.date >= todayDs; });
   upcoming.sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; });
-  // De-dupe same-day same-title (multi-day spans show once per day which is fine)
-  upcoming = upcoming.slice(0,8);
+  upcoming = upcoming.slice(0,12);
   document.getElementById('ev-date-lbl').textContent = '🗓 Upcoming Events';
   if(!upcoming.length){list.innerHTML='<div class="empty"><span class="empty-ico">📭</span>No upcoming events — add one!</div>';return;}
   var lastDate='';
@@ -1449,14 +1478,18 @@ async function renderEvents() {
     }
     var whoTag=e.who?' &nbsp;'+whoPill(e.who):'';
     var repeatIcon=e.repeatId?' <span style="font-size:.68rem;color:var(--ink-l)">🔁</span>':'';
+    var gcalBadge=e.fromGCal?' <span style="font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:20px;background:#E8F0FE;color:#4285F4;vertical-align:middle;">G</span>':'';
     var delArg=e.repeatId?e.id+',\''+e.repeatId+'\'':e.id;
+    var actionBtns = e.fromGCal
+      ? '<span style="font-size:.68rem;color:var(--ink-l);padding:0 4px;">Google Cal</span>'
+      : '<button class="xbtn" style="opacity:.5;font-size:.8rem" title="Edit" onclick="openEventEdit('+e.id+')">✏️</button>'
+        +'<button class="xbtn" onclick="delEvent('+delArg+')">✕</button>';
     return header
       +'<div class="ev-item">'
       +evDotHtml(e)
-      +'<div class="ev-info"><div class="ev-name">'+e.title+repeatIcon+'</div>'
+      +'<div class="ev-info"><div class="ev-name">'+e.title+gcalBadge+repeatIcon+'</div>'
       +'<div class="ev-meta">'+(e.time?'⏰ '+e.time:'')+whoTag+'</div></div>'
-      +'<button class="xbtn" style="opacity:.5;font-size:.8rem" title="Edit" onclick="openEventEdit('+e.id+')">✏️</button>'
-      +'<button class="xbtn" onclick="delEvent('+delArg+')">✕</button>'
+      +actionBtns
       +'</div>';
   }).join('');
 }
@@ -1519,6 +1552,12 @@ async function addEvent() {
     }
   }
   await famSet('events',evs);
+  // Push the first/only event to Google Calendar (for non-repeating or first occurrence)
+  if(gcalConnected && evs.length) {
+    var newEv = evs[evs.length-1];
+    if(!newEv.repeatId) pushEventToGcal(newEv);
+    else pushEventToGcal(evs.find(function(e){return e.id===baseTs;})||newEv);
+  }
   closeModals(); renderCal(); renderEvents();
 }
 async function delEvent(id, repeatId) {
@@ -1526,11 +1565,17 @@ async function delEvent(id, repeatId) {
   if(repeatId){
     var choice=confirm('Delete all occurrences of this repeating event?\n\nOK = Delete all  |  Cancel = Delete just this one');
     if(choice){
+      // Delete all gcalIds for this repeat series
+      evs.filter(function(e){return e.repeatId===repeatId&&e.gcalId;}).forEach(function(e){deleteEventFromGcal(e.gcalId);});
       evs=evs.filter(function(e){return e.repeatId!==repeatId;});
     } else {
+      var toDelete=evs.find(function(e){return e.id===id;});
+      if(toDelete&&toDelete.gcalId) deleteEventFromGcal(toDelete.gcalId);
       evs=evs.filter(function(e){return e.id!==id;});
     }
   } else {
+    var toDelete=evs.find(function(e){return e.id===id;});
+    if(toDelete&&toDelete.gcalId) deleteEventFromGcal(toDelete.gcalId);
     evs=evs.filter(function(e){return e.id!==id;});
   }
   await famSet('events',evs);
@@ -2193,6 +2238,140 @@ async function checkPendingBadge(){
   var badge = document.getElementById('admin-badge');
   if(pending.length){badge.textContent=pending.length;badge.style.display='inline-block';}
   else badge.style.display='none';
+}
+
+// ══════════════════════════════════════
+// GOOGLE CALENDAR SYNC
+// ══════════════════════════════════════
+var gcalEvents = [];   // cached Google events (merged into calendar view)
+var gcalConnected = false;
+
+async function gcalCheckStatus() {
+  try {
+    var r = await fetch('/api/calendar?action=status');
+    var d = await r.json();
+    gcalConnected = d.connected;
+    updateGcalUI(d);
+    if (d.connected) {
+      var ind = document.getElementById('gcal-cal-indicator');
+      if (ind) ind.style.display = '';
+    }
+    return d.connected;
+  } catch(e) { return false; }
+}
+
+function updateGcalUI(status) {
+  var badge       = document.getElementById('gcal-status-badge');
+  var connInfo    = document.getElementById('gcal-connected-info');
+  var connectArea = document.getElementById('gcal-connect-area');
+  var calName     = document.getElementById('gcal-cal-name');
+  if (!badge) return;
+  if (status.connected) {
+    badge.textContent = '✅ Connected';
+    badge.style.background = 'var(--forest-ll)';
+    badge.style.color = 'var(--forest)';
+    if (connInfo) connInfo.style.display = '';
+    if (connectArea) connectArea.style.display = 'none';
+    if (calName) {
+      var d = status.connectedAt ? new Date(status.connectedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+      calName.innerHTML = '📅 <strong>'+status.calendarName+'</strong><br><span style="font-size:.75rem;color:var(--ink-l)">Connected '+d+'</span>';
+    }
+  } else {
+    badge.textContent = 'Not connected';
+    badge.style.background = 'var(--sand-d)';
+    badge.style.color = 'var(--ink-l)';
+    if (connInfo) connInfo.style.display = 'none';
+    if (connectArea) connectArea.style.display = '';
+  }
+}
+
+function gcalConnect() {
+  // Redirect to our server-side OAuth start
+  window.location.href = '/api/auth/google';
+}
+
+async function gcalDisconnect() {
+  if (!confirm('Disconnect Google Calendar? Events from Google will no longer appear in ReynoldsHub.')) return;
+  await stDel('gcal:tokens');
+  gcalConnected = false;
+  gcalEvents = [];
+  updateGcalUI({ connected: false });
+  var ind = document.getElementById('gcal-cal-indicator');
+  if (ind) ind.style.display = 'none';
+  renderCal();
+  renderEvents();
+}
+
+async function gcalSync() {
+  var statusEl = document.getElementById('gcal-sync-status');
+  if (statusEl) statusEl.textContent = '⏳ Syncing…';
+  try {
+    var r = await fetch('/api/calendar?action=list&days=90');
+    var d = await r.json();
+    if (d.error || !d.events) throw new Error(d.error || 'No events returned');
+    gcalEvents = d.events;
+    if (statusEl) statusEl.textContent = '✅ Synced '+gcalEvents.length+' events from "'+d.calendarName+'"';
+    renderCal();
+    renderEvents();
+    setTimeout(function(){ if(statusEl) statusEl.textContent = ''; }, 4000);
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '⚠️ Sync failed: '+e.message;
+  }
+}
+
+// Merge local + Google events for rendering
+async function getAllEvents() {
+  var local = await famGet('events') || [];
+  // Filter out any that are actually gcal-sourced (avoid duplicates on re-render)
+  var localOnly = local.filter(function(e){ return !e.fromGCal; });
+  return localOnly.concat(gcalEvents);
+}
+
+// Push a newly-created local event to Google Calendar
+async function pushEventToGcal(event) {
+  if (!gcalConnected) return;
+  try {
+    var r = await fetch('/api/calendar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: event })
+    });
+    var d = await r.json();
+    if (d.gcalId) {
+      // Store the gcalId on the local event so we can delete it later
+      var evs = await famGet('events') || [];
+      var ev = evs.find(function(e){ return e.id === event.id; });
+      if (ev) {
+        ev.gcalId = d.gcalId;
+        await famSet('events', evs);
+      }
+    }
+  } catch(e) { console.warn('gcal push failed:', e); }
+}
+
+// Delete an event from Google Calendar
+async function deleteEventFromGcal(gcalId) {
+  if (!gcalConnected || !gcalId) return;
+  try {
+    await fetch('/api/calendar?action=delete&gcalId='+encodeURIComponent(gcalId), { method: 'DELETE' });
+  } catch(e) { console.warn('gcal delete failed:', e); }
+}
+
+// Handle OAuth redirect result (?gcal=connected / denied / error)
+function handleGcalRedirect() {
+  var params = new URLSearchParams(window.location.search);
+  var gcal = params.get('gcal');
+  if (!gcal) return;
+  // Clean the URL
+  window.history.replaceState({}, '', window.location.pathname);
+  if (gcal === 'connected') {
+    gcalSync();          // immediate sync after connect
+    gcalCheckStatus();   // update UI
+  } else if (gcal === 'denied') {
+    alert('Google Calendar connection was cancelled.');
+  } else if (gcal === 'error') {
+    alert('Google Calendar connection failed. Check that your Vercel environment variables are set correctly.');
+  }
 }
 
 async function renderAdmin(){
