@@ -466,6 +466,7 @@ pointer-events:none;z-index:0;}
         <div style="display:flex;gap:.5rem">
           <button class="btn-sm" style="background:linear-gradient(135deg,#0D4F6E,var(--ocean));color:var(--white)" onclick="goSec('helper',document.getElementById('nb-helper'))">🤖 AI Plan</button>
           <button class="btn-sm btn-sm-forest" onclick="openModal('meal')">+ Add</button>
+          <button class="btn-sm btn-sm-ghost" onclick="clearMeals()" title="Clear all meals this week">🗑 Clear</button>
         </div>
       </div>
       <div id="meal-list" style="margin-top:.75rem"></div>
@@ -523,7 +524,12 @@ pointer-events:none;z-index:0;}
       <div class="card">
         <div class="card-row">
           <div class="card-title">🛒 Shopping List</div>
-          <button class="btn-sm btn-sm-forest" onclick="openModal('shop')">+ Add</button>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn-sm btn-sm-ghost" onclick="checkAllShop()" title="Check everything off">✓ All</button>
+            <button class="btn-sm btn-sm-ghost" onclick="clearDoneShop()" title="Remove checked items">🗑 Done</button>
+            <button class="btn-sm btn-sm-ghost" onclick="clearAllShop()" title="Clear entire list">🗑 All</button>
+            <button class="btn-sm btn-sm-forest" onclick="openModal('shop')">+ Add</button>
+          </div>
         </div>
         <div class="pbar-lbl" id="shop-lbl">0 of 0 items</div>
         <div class="pbar-wrap"><div class="pbar-fill" id="shop-bar" style="width:0%"></div></div>
@@ -1692,6 +1698,25 @@ async function renderShop(){
 }
 async function togShop(id){var i=await famGet('shopping')||[];var x=i.find(function(x){return x.id===id;});if(x){x.done=!x.done;await famSet('shopping',i);renderShop();}}
 async function delShop(id){var i=await famGet('shopping')||[];await famSet('shopping',i.filter(function(x){return x.id!==id;}));renderShop();}
+async function checkAllShop(){
+  var i=await famGet('shopping')||[];
+  i.forEach(function(x){x.done=true;});
+  await famSet('shopping',i);renderShop();
+}
+async function clearDoneShop(){
+  var i=await famGet('shopping')||[];
+  await famSet('shopping',i.filter(function(x){return !x.done;}));renderShop();
+}
+async function clearAllShop(){
+  if(!confirm('Clear the entire shopping list?')) return;
+  await famSet('shopping',[]);renderShop();
+}
+async function clearMeals(){
+  if(!confirm('Clear all meals for this week?')) return;
+  var m={};
+  DAYS.forEach(function(d){m[d]={breakfast:'',lunch:'',dinner:'',snack:''};});
+  await famSet('meals',m);renderMeals();
+}
 async function addShop(){
   var name=document.getElementById('sh-n').value.trim();
   if(!name){alert('Enter an item');return;}
